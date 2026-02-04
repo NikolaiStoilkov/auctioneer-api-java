@@ -1,6 +1,7 @@
 package com.example.auctioneer.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.Setter;
 
 @Entity
 @Table(
@@ -11,6 +12,7 @@ import jakarta.persistence.*;
                 )
         }
 )
+@Setter
 public class ShippingAddress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

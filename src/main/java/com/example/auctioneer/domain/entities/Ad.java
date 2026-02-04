@@ -1,6 +1,7 @@
 package com.example.auctioneer.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 @Table(
         name = "ADS"
 )
+@Setter
 public class Ad {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)

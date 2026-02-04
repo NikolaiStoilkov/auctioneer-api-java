@@ -2,6 +2,7 @@ package com.example.auctioneer.domain.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.Setter;
 
 @Entity
 @Table(
@@ -11,6 +12,7 @@ import jakarta.validation.constraints.*;
                 @UniqueConstraint(columnNames = "pin")
         }
 )
+@Setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
