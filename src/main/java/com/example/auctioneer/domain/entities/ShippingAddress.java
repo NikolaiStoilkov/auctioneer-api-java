@@ -1,22 +1,12 @@
 package com.example.auctioneer.domain.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Table(
-        name = "SHIPPING_ADDRESSES",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        columnNames =  "phone_number"
-                )
-        }
+        name = "SHIPPING_ADDRESSES"
 )
-@Setter
-@Getter
 public class ShippingAddress {
-    // Getters and Setters
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -47,11 +37,6 @@ public class ShippingAddress {
 
     @Column(name = "postal_code", length = 20)
     private String postalCode;
-
-    // Required no-args constructor for JPA
-    public ShippingAddress() {
-    }
-
 }
 
 
