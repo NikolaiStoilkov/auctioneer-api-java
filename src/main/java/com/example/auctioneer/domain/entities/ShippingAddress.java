@@ -39,7 +39,6 @@ public class ShippingAddress {
     private String postalCode;
 }
 
-
 /**
  * First Name
  * Middle name
