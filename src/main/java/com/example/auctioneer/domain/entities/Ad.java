@@ -1,11 +1,13 @@
 package com.example.auctioneer.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 @Entity
 @Table(
         name = "ADS"
@@ -47,77 +49,6 @@ public class Ad {
         public Ad() {
         }
 
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public List<String> getImages() {
-            return images;
-        }
-
-        public void setImages(List<String> images) {
-            this.images = images;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public Double getBidStep() {
-            return bidStep;
-        }
-
-        public void setBidStep(Double bidStep) {
-            this.bidStep = bidStep;
-        }
-
-        public Double getStartingBidPrice() {
-            return startingBidPrice;
-        }
-
-        public void setStartingBidPrice(Double startingBidPrice) {
-            this.startingBidPrice = startingBidPrice;
-        }
-
-        public User getAuthor() {
-            return author;
-        }
-
-        public void setAuthor(User author) {
-            this.author = author;
-        }
-
-        public User getLastBidder() {
-            return lastBidder;
-        }
-
-        public void setLastBidder(User lastBidder) {
-            this.lastBidder = lastBidder;
-        }
-
-        public String getLocation() {
-            return location;
-        }
-
-        public void setLocation(String location) {
-            this.location = location;
-        }
 }
 
 /**
