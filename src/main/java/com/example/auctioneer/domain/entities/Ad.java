@@ -42,14 +42,3 @@ public class Ad {
     @Column(name = "location", length = 100)
     private String location;
 }
-
-/**
- * Title
- * Images
- * Description
- * Bid step
- * Starting bid price
- * Author
- * Last bidder
- * Location
- */

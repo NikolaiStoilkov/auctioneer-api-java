@@ -38,16 +38,3 @@ public class ShippingAddress {
     @Column(name = "postal_code", length = 20)
     private String postalCode;
 }
-
-
-/**
- * First Name
- * Middle name
- * Last Name
- * Phone number
- * Country
- * City
- * Street
- * Street number
- * Postal code
- */
