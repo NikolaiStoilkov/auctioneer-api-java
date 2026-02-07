@@ -4,11 +4,11 @@ import java.util.List;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.Cookie;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.session.Session;
@@ -88,10 +88,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
             String username = claims.getSubject();
 
-            /**
-             * I'm not sure if this is a correct way to
-             * validate session when using session repository
-             */
             String sessionId = claims.get("sessionId", String.class);
 
             Session session = sessionRepository.findById(sessionId);

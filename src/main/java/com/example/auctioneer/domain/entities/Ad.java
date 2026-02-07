@@ -4,13 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 @Table(
         name = "ADS"
 )
 public class Ad {
-    @Setter
-    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,14 +42,3 @@ public class Ad {
     @Column(name = "location", length = 100)
     private String location;
 }
-
-/**
- * Title
- * Images
- * Description
- * Bid step
- * Starting bid price
- * Author
- * Last bidder
- * Location
- */

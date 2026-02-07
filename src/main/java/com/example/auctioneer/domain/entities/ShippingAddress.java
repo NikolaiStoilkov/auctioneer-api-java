@@ -2,6 +2,12 @@ package com.example.auctioneer.domain.entities;
 
 import jakarta.persistence.*;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+
 @Entity
 @Table(
         name = "SHIPPING_ADDRESSES"
@@ -38,15 +44,3 @@ public class ShippingAddress {
     @Column(name = "postal_code", length = 20)
     private String postalCode;
 }
-
-/**
- * First Name
- * Middle name
- * Last Name
- * Phone number
- * Country
- * City
- * Street
- * Street number
- * Postal code
- */

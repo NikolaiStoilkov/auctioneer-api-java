@@ -3,7 +3,12 @@ package com.example.auctioneer.domain.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
+@Setter
+@Getter
 @Table(
         name = "USERS"
 )
