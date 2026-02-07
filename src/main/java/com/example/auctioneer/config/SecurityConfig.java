@@ -13,7 +13,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                    .anyRequest().authenticated()
+                    .requestMatchers("/api/users/**").permitAll()
+                    .requestMatchers("/api/ads/**").hasRole("USER")
             )
             .formLogin(form -> form.permitAll());
 
