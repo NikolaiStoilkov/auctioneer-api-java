@@ -4,13 +4,15 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
+@Setter
+@Getter
 @Entity
 @Table(
         name = "ADS"
 )
 public class Ad {
-    @Setter
-    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,10 +28,10 @@ public class Ad {
     private String description;
 
     @Column(name = "bid_step", nullable = false)
-    private Double bidStep;
+    private BigDecimal bidStep;
 
     @Column(name = "starting_bid_price", nullable = false)
-    private Double startingBidPrice;
+    private BigDecimal startingBidPrice;
 
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
