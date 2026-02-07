@@ -8,6 +8,7 @@ import java.util.List;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,8 +21,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -39,7 +38,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         setFilterProcessesUrl(SecurityConstants.LOGIN_URL);
     }
 
-    //    @Override - Method does not override method from its superclass
+    @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
