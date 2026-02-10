@@ -47,7 +47,16 @@ public class User {
     @Column(name = "phone_number", length = 30)
     private String phoneNumber;
 
+    @Column(name = "role", nullable = false, length = 100)
+    private String role;
+
     @Email
     @Column(name = "email", nullable = false, length = 100, unique = true)
     private String email;
+
+    @Column(name = "username", nullable = false, length = 50, unique = true)
+    private String username;
+
+    @Column(name = "password_hash", nullable = false, length = 255)
+    private String passwordHash;
 }

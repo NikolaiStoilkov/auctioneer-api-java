@@ -1,25 +1,40 @@
 package com.example.auctioneer.controller;
 
 import com.example.auctioneer.domain.entities.Ad;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.auctioneer.dtos.AdDto;
+import com.example.auctioneer.repository.AdRepository;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/ads")
 public class AdController {
+    private final AdRepository adRepository;
+
+    public AdController(AdRepository adRepository) {
+        this.adRepository = adRepository;
+    }
 
     @GetMapping("/{id}")
-    private Ad getAd(@PathVariable Long id){
-        Ad ad = new Ad();
+    private AdDto<Ad> get(@PathVariable Long id) {
+        AdDto<Ad> adDto = new AdDto<>();
 
-        ad.setId(1L);
+        adRepository.findById(id).ifPresent(ad -> {
+            adDto.setTitle(ad.getTitle());
+            adDto.setDescription(ad.getDescription());
+            adDto.setStartingBidPrice(ad.getStartingBidPrice());
+            adDto.setCurrentBidPrice(ad.getCurrentBidPrice());
+            adDto.setAuthor(ad.getAuthor());
+        });
 
-        ad.setTitle("Ad title");
-        ad.setDescription("Ad description");
+        return adDto;
+    }
 
-        return ad;
+    @PostMapping("/create")
+    private void create(@RequestBody Ad ad) {
+        try {
+            adRepository.save(ad);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

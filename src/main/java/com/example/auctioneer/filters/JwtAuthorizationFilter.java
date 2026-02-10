@@ -1,108 +1,64 @@
 package com.example.auctioneer.filters;
 
-import java.util.List;
-import java.io.IOException;
-import java.util.stream.Collectors;
+import com.example.auctioneer.dtos.JwtDto;
+import com.example.auctioneer.service.JwtService;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.session.Session;
-import org.springframework.session.SessionRepository;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
-import com.example.auctioneer.constants.SecurityConstants;
-import com.example.auctioneer.exceptions.InvalidJsonWebToken;
+public class JwtAuthorizationFilter {
+    private final JwtService jwtService;
+    private final UserDetails userDetails;
+    private final UserDetailsPasswordService userDetailsPasswordService;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.security.SignatureException;
-
-public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
-    private final SessionRepository<Session> sessionRepository;
-
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, SessionRepository<Session> sessionRepository) {
-        super(authenticationManager);
-        this.sessionRepository = sessionRepository;
+    public JwtAuthorizationFilter(JwtService jwtService) {
+        this.jwtService = jwtService;
+        this.userDetails = null;
+        this.userDetailsPasswordService = null;
     }
 
-    //    @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
-        UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
+    public void GetUsernameAndPassword(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        JwtDto jwtDto = new JwtDto();
 
-        if (authentication != null) {
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        assert userDetails != null; // Ensure userDetails is not null before proceeding
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    null,
+                    userDetails.getAuthorities());
+
+            jwtDto.setToken(authHeader.substring(7));
+
+            // Extract username and passwordHash from token
+            jwtDto.setUsername(jwtService.extractUsername(jwtDto.getToken()));
+            jwtDto.setPasswordHash(jwtService.extractPasswordHash(jwtDto.getToken()));
         }
-        filterChain.doFilter(request, response);
     }
 
-    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-        String token = null;
-        Cookie[] cookies = request.getCookies();
+    public String createAuthenticationToken(UserDetails userDetails, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        JwtDto jwtDto = new JwtDto();
 
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(SecurityConstants.JWT_COOKIE_NAME)) {
-                    token = cookie.getValue();
-                }
-            }
-        }
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    null,
+                    userDetails.getAuthorities());
 
-        if (StringUtils.isNotEmpty(token)) {
-            byte[] signingKey = SecurityConstants.JWT_SECRET.getBytes();
+            jwtDto.setToken(authHeader.substring(7));
 
-            Claims claims;
+            // Extract username from token
+            jwtDto.setUsername(jwtService.extractUsername(jwtDto.getToken()));
+            jwtDto.setPasswordHash(jwtService.extractPasswordHash(jwtDto.getToken()));
 
-            try {
-                claims = Jwts.parser()
-                        .verifyWith(Keys.hmacShaKeyFor(signingKey))
-                        .build()
-                        .parseSignedClaims(token)
-                        .getPayload();
+            // Set authentication in security context
+            String generatedToken = jwtService.generateToken(jwtDto.getUsername(), jwtDto.getPasswordHash());
 
-            } catch (
-                    ExpiredJwtException
-                    | UnsupportedJwtException
-                    | MalformedJwtException
-                    | SignatureException
-                    | IllegalArgumentException e
-            ) {
-                throw new InvalidJsonWebToken();
-            }
-
-            String username = claims.getSubject();
-
-            String sessionId = claims.get("sessionId", String.class);
-
-            Session session = sessionRepository.findById(sessionId);
-
-            if (session == null) {
-                throw new InvalidJsonWebToken();
-            }
-
-            @SuppressWarnings("unchecked")
-            List<SimpleGrantedAuthority> authorities = ((List<String>) claims.get("roles", List.class))
-                    .stream()
-                    .map(authority -> new SimpleGrantedAuthority((String) authority))
-                    .collect(Collectors.toList());
-
-            return new UsernamePasswordAuthenticationToken(username, null, authorities);
+            return generatedToken;
         }
 
         return null;

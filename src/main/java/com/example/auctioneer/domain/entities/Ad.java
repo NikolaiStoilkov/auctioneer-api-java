@@ -31,6 +31,9 @@ public class Ad {
     @Column(name = "starting_bid_price", nullable = false)
     private Double startingBidPrice;
 
+    @Column(name = "current_bid_price", nullable = false)
+    private Double currentBidPrice;
+
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
     private User author;

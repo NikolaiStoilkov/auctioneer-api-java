@@ -1,0 +1,11 @@
+services:
+  mysql:
+    container_name: 'auctioneer-mysql'
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_ROOT_PASSWORD=123123'
+      - 'MYSQL_USER=auctioneer_app'
+      - 'MYSQL_PASSWORD=apppassword'
+      - 'MYSQL_DATABASE=auctioneer'
+    ports:
+      - '3307:3306'

@@ -1,92 +1,61 @@
 package com.example.auctioneer.filters;
 
-import com.example.auctioneer.dtos.UserDto;
-import com.example.auctioneer.constants.SecurityConstants;
+import com.example.auctioneer.repository.UserRepository;
+import com.example.auctioneer.service.JwtService;
 
-import java.util.Date;
-import java.util.List;
-import java.io.IOException;
-import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.Cookie;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import org.springframework.session.Session;
-import org.springframework.session.SessionRepository;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-    private final ObjectMapper objectMapper;
-    private final SessionRepository<Session> sessionRepository;
-    private final AuthenticationManager authenticationManager;
+import java.io.IOException;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, SessionRepository<Session> sessionRepository, ObjectMapper objectMapper) {
-        this.authenticationManager = authenticationManager;
-        this.sessionRepository = sessionRepository;
-        this.objectMapper = objectMapper;
+@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    private final UserRepository userRepository;
+    private final JwtService jwtService;
 
-        setFilterProcessesUrl(SecurityConstants.LOGIN_URL);
+    @Autowired
+    public JwtAuthenticationFilter(UserRepository userRepository, JwtService jwtService) {
+        this.userRepository = userRepository;
+        this.jwtService = jwtService;
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+        String authHeader = request.getHeader("Authorization");
+        String token = null;
+        String username = null;
 
-        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
-
-        return authenticationManager.authenticate(authenticationToken);
-    }
-
-    //    @Override - Method does not override method from its superclass
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain, Authentication authentication) {
-        String username = authentication.getName();
-
-        List<String> roles = authentication
-                .getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-
-        byte[] signingKey = SecurityConstants.JWT_SECRET.getBytes();
-
-        String token = Jwts.builder()
-                .subject(username)
-                .expiration(new Date(System.currentTimeMillis() + SecurityConstants.JWT_EXPIRATION_TIME_MILISECONDS))
-                .claim("roles", roles)
-                .signWith(Keys.hmacShaKeyFor(signingKey))
-                .compact();
-
-        Session session = this.sessionRepository.createSession();
-        session.setAttribute("username", username);
-
-        this.sessionRepository.save(session);
-
-        Cookie jwtCookie = new Cookie(SecurityConstants.JWT_COOKIE_NAME, token);
-        jwtCookie.setHttpOnly(true);
-        jwtCookie.setMaxAge(SecurityConstants.JWT_EXPIRATION_TIME_SECONDS);
-        jwtCookie.setPath("/");
-
-        response.addCookie(jwtCookie);
-
-        UserDto userDto = new UserDto();
-        userDto.setUsername(username);
-        userDto.setRoles(roles);
-
-        try {
-            this.objectMapper.writeValue(response.getOutputStream(), userDto);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+            username = jwtService.extractUsername(token);
         }
+
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userRepository.findUsersByUsername(username);
+
+            if (jwtService.validateToken(token, userDetails)) {
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities());
+
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+
+        filterChain.doFilter(request, response);
     }
 }
