@@ -26,10 +26,10 @@ public class Ad {
     private String description;
 
     @Column(name = "bid_step", nullable = false)
-    private Double bidStep;
+    private BigDecimal bidStep;
 
     @Column(name = "starting_bid_price", nullable = false)
-    private Double startingBidPrice;
+    private BigDecimal startingBidPrice;
 
     @Column(name = "current_bid_price", nullable = false)
     private Double currentBidPrice;

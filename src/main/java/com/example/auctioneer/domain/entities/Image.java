@@ -11,6 +11,7 @@ import lombok.Setter;
 public class Image {
     @Id
     @Column
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String code;
 
     @Column
