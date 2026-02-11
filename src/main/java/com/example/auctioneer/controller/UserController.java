@@ -4,16 +4,14 @@ import com.example.auctioneer.dtos.UserDto;
 import com.example.auctioneer.domain.entities.User;
 import com.example.auctioneer.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
     private final UserRepository userRepository;
-
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @GetMapping("/{id}")
     public User get(@PathVariable Long id) {
