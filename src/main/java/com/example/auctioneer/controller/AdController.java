@@ -3,16 +3,15 @@ package com.example.auctioneer.controller;
 import com.example.auctioneer.domain.entities.Ad;
 import com.example.auctioneer.dtos.AdDto;
 import com.example.auctioneer.repository.AdRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/ads")
+@RequiredArgsConstructor
 public class AdController {
     private final AdRepository adRepository;
-
-    public AdController(AdRepository adRepository) {
-        this.adRepository = adRepository;
-    }
 
     @GetMapping("/{id}")
     private AdDto<Ad> get(@PathVariable Long id) {
