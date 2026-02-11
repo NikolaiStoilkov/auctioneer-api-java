@@ -9,7 +9,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "images")
 public class Image {
-
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
