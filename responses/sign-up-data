@@ -1,0 +1,33 @@
+{
+    "token": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJqb2huX2RvZTokMmEkMTAkTHFKaDRQSFE2ZlN2V2FnQ3pVcGM3ZXV6Z00yMVRnbHdOU2JEMi5Hb2kubEJaQXFOS2ovTC4iLCJpYXQiOjE3NzE0MTg2MzEsImV4cCI6MTc3MTQyMDQzMX0.Jr0QTH386-1pyThCzBIx-gGFqyLfVACdEwADT6pYbpNvNpaVgp3AJUJcbhvbcy_W",
+    "user": {
+        "city": "Sofia",
+        "country": "Bulgaria",
+        "email": "john.doe@example.com",
+        "firstName": "John",
+        "id": 8,
+        "lastName": "Doe",
+        "middleName": "Michael",
+        "passwordHash": "$2a$10$LqJh4PHQ6fSvWagCzUpc7euzgM21TglwNSbD2.Goi.lBZAqNKj/L.",
+        "phoneNumber": "+359888111222",
+        "postalCode": "1000",
+        "role": "USER",
+        "street": "Vitosha Blvd",
+        "streetNumber": "101",
+        "ucn": "1234567890",
+        "username": "john_doe"
+    },
+    "userDetails": {
+        "accountNonExpired": true,
+        "accountNonLocked": true,
+        "authorities": [
+            {
+                "authority": "USER"
+            }
+        ],
+        "credentialsNonExpired": true,
+        "enabled": true,
+        "password": "$2a$10$LqJh4PHQ6fSvWagCzUpc7euzgM21TglwNSbD2.Goi.lBZAqNKj/L.",
+        "username": "john_doe"
+    }
+}
