@@ -4,6 +4,7 @@ import com.auctioneer.domain.entities.User;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -11,9 +12,9 @@ import java.util.List;
 public class AdDto<Ad> {
     private String title;
     private String description;
-    private Double bidStep;
-    private Double startingBidPrice;
-    private Double currentBidPrice;
+    private BigDecimal bidStep;
+    private BigDecimal startingBidPrice;
+    private BigDecimal currentBidPrice;
     private User author;
     private String lastBidder;
     private String location;

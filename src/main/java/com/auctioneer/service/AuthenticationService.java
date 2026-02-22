@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,7 +23,6 @@ public class AuthenticationService {
     private final UserDetailsTransformer userDetailsTransformer;
     private final UserTransformer userTransformer;
 
-    @Transactional
     public AuthDto create(UserAuthSignUpDto userAuthSignUpDto) {
         String username = userAuthSignUpDto.getUsername();
         String password = userAuthSignUpDto.getPassword(); // plain text password

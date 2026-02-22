@@ -1,14 +1,14 @@
 {
-    "token": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJqb2huX2RvZTokMmEkMTAkTHFKaDRQSFE2ZlN2V2FnQ3pVcGM3ZXV6Z00yMVRnbHdOU2JEMi5Hb2kubEJaQXFOS2ovTC4iLCJpYXQiOjE3NzE0MTg2MzEsImV4cCI6MTc3MTQyMDQzMX0.Jr0QTH386-1pyThCzBIx-gGFqyLfVACdEwADT6pYbpNvNpaVgp3AJUJcbhvbcy_W",
+    "token": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJqb2huX2RvZTokMmEkMTAkVkxLbXc4M2xsaVNxdmhXSFlVeHY5TzFpblZEOHBGSjRiaE40aUFSTlhHMDh1dVhTN3YvM3EiLCJpYXQiOjE3NzE0MTg3NjgsImV4cCI6MTc3MTQyMDU2OH0.0HEZ3avrYMakgqahHNIQDedQyszylUjOfIaA6lAyJFSdC-3D8lKzWjrSfPnEunmA",
     "user": {
         "city": "Sofia",
         "country": "Bulgaria",
         "email": "john.doe@example.com",
         "firstName": "John",
-        "id": 8,
+        "id": 9,
         "lastName": "Doe",
         "middleName": "Michael",
-        "passwordHash": "$2a$10$LqJh4PHQ6fSvWagCzUpc7euzgM21TglwNSbD2.Goi.lBZAqNKj/L.",
+        "passwordHash": "$2a$10$VLKmw83lliSqvhWHYUxv9O1inVD8pFJ4bhN4iARNXG08uuXS7v/3q",
         "phoneNumber": "+359888111222",
         "postalCode": "1000",
         "role": "USER",
@@ -27,7 +27,7 @@
         ],
         "credentialsNonExpired": true,
         "enabled": true,
-        "password": "$2a$10$LqJh4PHQ6fSvWagCzUpc7euzgM21TglwNSbD2.Goi.lBZAqNKj/L.",
+        "password": "$2a$10$VLKmw83lliSqvhWHYUxv9O1inVD8pFJ4bhN4iARNXG08uuXS7v/3q",
         "username": "john_doe"
     }
 }

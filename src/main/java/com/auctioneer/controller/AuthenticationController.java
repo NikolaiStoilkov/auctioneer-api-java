@@ -8,6 +8,7 @@ import com.auctioneer.events.OnUserSignUpEvent;
 import com.auctioneer.service.AuthenticationService;
 import com.auctioneer.service.JwtService;
 
+import jakarta.validation.Valid;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ public class AuthenticationController {
     private final JwtService jwtService;
 
     @GetMapping("/sign-up")
+    @Valid
     private AuthDto signUp(@RequestBody UserAuthSignUpDto userAuthSignUpDto) {
         AuthDto authenticatedUser = authenticationService.create(userAuthSignUpDto);
 
@@ -41,6 +43,7 @@ public class AuthenticationController {
     }
 
     @GetMapping("/sign-in")
+    @Valid
     private AuthDto signIn(HttpServletRequest request) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
