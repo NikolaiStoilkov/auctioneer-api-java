@@ -26,8 +26,7 @@ public class AuthenticationController {
     private final JwtService jwtService;
 
     @GetMapping("/sign-up")
-    @Valid
-    private AuthDto signUp(@RequestBody UserAuthSignUpDto userAuthSignUpDto) {
+    private AuthDto signUp(@Valid @RequestBody UserAuthSignUpDto userAuthSignUpDto) {
         AuthDto authenticatedUser = authenticationService.create(userAuthSignUpDto);
 
         if (!authenticatedUser.getUserDetails().isEnabled()) {
@@ -43,7 +42,6 @@ public class AuthenticationController {
     }
 
     @GetMapping("/sign-in")
-    @Valid
     private AuthDto signIn(HttpServletRequest request) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
