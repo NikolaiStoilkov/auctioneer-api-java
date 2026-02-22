@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -30,20 +33,23 @@ public class AuthenticationService {
         String passwordHash = passwordEncoder.encode(password);
         userAuthSignUpDto.setPassword(passwordHash);
 
-        String token = jwtService.generateToken(
-                username,
-                passwordHash
-        );
+        Map<String, Object> claims = Map.of("ROLES", List.of("USER"));
 
         User user = userTransformer.transform(userAuthSignUpDto);
-        UserDetails userDetails = userDetailsTransformer.transform(user);
+//        UserDetails userDetails = userDetailsTransformer.transform(user);
+        userRepository.save(user);
 
-        AuthDto authDto = new AuthDto();
-
-        authDto.setUserDetails(
-                userDetails
+        String token = jwtService.generateToken(
+                user.getId(),
+                claims
         );
-
+//
+        AuthDto authDto = new AuthDto();
+//
+//        authDto.setUserDetails(
+//                userDetails
+//        );
+//
         authDto.setUser(user);
 
         authDto.setToken(token);
@@ -62,7 +68,7 @@ public class AuthenticationService {
             if (jwtService.validateToken(token, userDetails)) {
                 AuthDto authDto = new AuthDto();
                 authDto.setUser(user);
-                authDto.setUserDetails(userDetails);
+//                authDto.setUserDetails(userDetails);
                 authDto.setToken(token);
 
                 return authDto;

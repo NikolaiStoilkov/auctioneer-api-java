@@ -3,13 +3,15 @@ package com.auctioneer.domain.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Setter
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(
         name = "USERS"
 )

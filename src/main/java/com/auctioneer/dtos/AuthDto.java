@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class AuthDto {
-    private UserDetails userDetails;
+//    private UserDetails userDetails;
     private User user;
     private String token;
 }

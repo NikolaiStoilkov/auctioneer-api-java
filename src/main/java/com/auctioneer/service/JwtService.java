@@ -7,6 +7,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+import org.springframework.security.config.annotation.web.oauth2.resourceserver.JwtDsl;
 import org.springframework.stereotype.Component;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -15,7 +16,6 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.Map;
 import java.security.Key;
-import java.util.HashMap;
 import java.util.function.Function;
 
 @Component
@@ -23,17 +23,10 @@ public class JwtService {
 
     public static final String SECRET = "5367566859703373367639792F423F452848284D6251655468576D5A71347437";
 
-    public String generateToken(String username, String passwordHash) { // Use email as username
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username, passwordHash);
-    }
-
-    private String createToken(Map<String, Object> claims, String username, String passwordHash) {
-        String tokenSubject = username + ":" + passwordHash;
-
+    public String generateToken(Long userId, Map<String, Object> claims) { // Use email as username
         return Jwts.builder()
                 .claims(claims)
-                .subject(tokenSubject)
+                .subject(userId.toString())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
                 .signWith(getSignKey())
@@ -45,7 +38,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String extractUsername(String token) {
+    public String extractUserId(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -58,7 +51,7 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token) {
+    public Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith((SecretKey) getSignKey())
                 .build()
@@ -66,12 +59,12 @@ public class JwtService {
                 .getPayload();
     }
 
-    private Boolean isTokenExpired(String token) {
+    public Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
     public UserAuthSignInDto parseToken(String token) {
-        String tokenSubject = extractUsername(token);
+        String tokenSubject = extractUserId(token);
         String[] parts = tokenSubject.split(":");
         String username = parts[0];
         String passwordHash = parts.length > 1 ? parts[1] : "";
@@ -83,17 +76,12 @@ public class JwtService {
         return userAuthDto;
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        String tokenSubject = extractUsername(token);
-        String[] parts = tokenSubject.split(":");
-        String username = parts[0];
-        String passwordHash = parts.length > 1 ? parts[1] : "";
-
-        return (
-                username.equals(userDetails.getUsername())
-                        && !isTokenExpired(token)
-                        && passwordHash.equals(userDetails.getPassword())
-        );
+    public Boolean validateToken(String token) {
+        try {
+            return extractAllClaims(token).getExpiration().before(new Date());
+        } catch (Exception ex) {
+            return false;
+        }
     }
 }
 

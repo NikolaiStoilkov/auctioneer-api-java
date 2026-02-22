@@ -4,7 +4,6 @@ import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.AuthDto;
 import com.auctioneer.dtos.forms.UserAuthSignInDto;
 import com.auctioneer.dtos.forms.UserAuthSignUpDto;
-import com.auctioneer.events.OnUserSignUpEvent;
 import com.auctioneer.service.AuthenticationService;
 import com.auctioneer.service.JwtService;
 
@@ -30,14 +29,15 @@ public class AuthenticationController {
     private AuthDto signUp(@RequestBody UserAuthSignUpDto userAuthSignUpDto) {
         AuthDto authenticatedUser = authenticationService.create(userAuthSignUpDto);
 
-        if (!authenticatedUser.getUserDetails().isEnabled()) {
-            throw new RuntimeException("User account is disabled");
-        }
+//        if (!authenticatedUser.getUserDetails().isEnabled()) {
+//            throw new RuntimeException("User account is disabled");
+//        }
 
         User user = authenticatedUser.getUser();
-        eventPublisher.publishEvent(
-                new OnUserSignUpEvent(this, user)
-        );
+//        eventPublisher.publishEvent(
+//                new OnUserSignUpEvent(this, user)
+//        );
+
 
         return authenticatedUser;
     }
@@ -45,6 +45,7 @@ public class AuthenticationController {
     @GetMapping("/sign-in")
     @Valid
     private AuthDto signIn(HttpServletRequest request) {
+        // TODO
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -60,10 +61,6 @@ public class AuthenticationController {
         String username = parsedToken.getUsername();
 
         AuthDto authenticatedUser = authenticationService.verify(jwt, username);
-
-        if (!authenticatedUser.getUserDetails().isEnabled()) {
-            throw new RuntimeException("User account is disabled");
-        }
 
         return authenticatedUser;
     }

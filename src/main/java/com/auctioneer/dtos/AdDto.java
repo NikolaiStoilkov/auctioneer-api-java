@@ -9,13 +9,12 @@ import java.util.List;
 
 @Getter
 @Setter
-public class AdDto<Ad> {
+public class AdDto {
     private String title;
     private String description;
     private BigDecimal bidStep;
     private BigDecimal startingBidPrice;
     private BigDecimal currentBidPrice;
-    private User author;
     private String lastBidder;
     private String location;
     private List<String> images;
