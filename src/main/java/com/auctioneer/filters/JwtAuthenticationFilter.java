@@ -1,10 +1,8 @@
 package com.auctioneer.filters;
 
-import com.auctioneer.dtos.UserPrincipal;
-import com.auctioneer.repository.UserRepository;
-import com.auctioneer.service.JwtService;
+import com.auctioneer.dtos.user.UserPrincipal;
+import com.auctioneer.service.auth.JwtService;
 
-import com.auctioneer.transformers.UserDetailsTransformer;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,9 +25,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final UserRepository userRepository;
     private final JwtService jwtService;
-    private final UserDetailsTransformer userDetailsTransformer;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
@@ -47,12 +43,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null
                 && !jwtService.isTokenExpired(token)) {
-
             UserPrincipal principal = UserPrincipal.builder()
                     .id(Long.valueOf(userId))
                     .build();
 
             Claims claims = jwtService.extractAllClaims(token);
+
+
+            /*
+            Unchecked assignment: 'java.util.List' to 'java.util.List<org.springframework.security.core.authority.SimpleGrantedAuthority>'.
+             Reason: 'claims.get("ROLES", List.class)
+                .stream()
+                .map(r -> new SimpleGrantedAuthority(r.toString()))' has raw type, so result of toList is erased
+             */
             List<SimpleGrantedAuthority> roles = claims.get("ROLES", List.class)
                     .stream()
                     .map(r -> new SimpleGrantedAuthority(r.toString()))

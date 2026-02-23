@@ -1,25 +1,21 @@
-package com.auctioneer.transformers;
+package com.auctioneer.transformers.user;
 
 import com.auctioneer.domain.entities.User;
-import com.auctioneer.dtos.UserDto;
+import com.auctioneer.dtos.user.UserDto;
 import com.auctioneer.dtos.forms.UserAuthSignUpDto;
-import jakarta.validation.constraints.Null;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.List;
 
 
 @Component
 @RequiredArgsConstructor
 public class UserTransformer {
 
-    public User transform (UserDto<User> userDto){
+    public User transform (UserDto userDto){
         User user = new User();
 
         user.setUsername(userDto.getUsername());
