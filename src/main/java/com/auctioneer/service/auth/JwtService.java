@@ -1,15 +1,11 @@
-package com.auctioneer.service;
-
-import com.auctioneer.dtos.forms.UserAuthSignInDto;
+package com.auctioneer.service.auth;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-import org.springframework.security.config.annotation.web.oauth2.resourceserver.JwtDsl;
 import org.springframework.stereotype.Component;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.crypto.SecretKey;
 
@@ -63,20 +59,19 @@ public class JwtService {
         return extractExpiration(token).before(new Date());
     }
 
-    public UserAuthSignInDto parseToken(String token) {
-        String tokenSubject = extractUserId(token);
-        String[] parts = tokenSubject.split(":");
-        String username = parts[0];
-        String passwordHash = parts.length > 1 ? parts[1] : "";
-
-        UserAuthSignInDto userAuthDto = new UserAuthSignInDto();
-        userAuthDto.setUsername(username);
-        userAuthDto.setPasswordHash(passwordHash);
-
-        return userAuthDto;
+    public String authorize(
+            Long userId,
+            Boolean isPasswordMatched,
+            Map<String, Object> claims
+    ) {
+        if (isPasswordMatched) {
+            return generateToken(userId, claims);
+        } else {
+            throw new RuntimeException("Invalid credentials");
+        }
     }
 
-    public Boolean validateToken(String token) {
+    public Boolean verify(String token) {
         try {
             return extractAllClaims(token).getExpiration().before(new Date());
         } catch (Exception ex) {

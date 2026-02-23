@@ -1,10 +1,9 @@
-package com.auctioneer.controller;
+package com.auctioneer.controller.ad;
 
-import com.auctioneer.dtos.AdDto;
-import com.auctioneer.dtos.UserPrincipal;
-import com.auctioneer.repository.AdRepository;
+import com.auctioneer.dtos.ad.AdDto;
+import com.auctioneer.dtos.user.UserPrincipal;
 
-import com.auctioneer.service.AdService;
+import com.auctioneer.service.ad.AdService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -15,22 +14,11 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/ads")
 @RequiredArgsConstructor
 public class AdController {
-
-    private final AdRepository adRepository;
     private final AdService adService;
 
     @GetMapping("/{id}")
     private AdDto get(@PathVariable Long id) {
-        AdDto adDto = new AdDto();
-
-        adRepository.findById(id).ifPresent(ad -> {
-            adDto.setTitle(ad.getTitle());
-            adDto.setDescription(ad.getDescription());
-            adDto.setStartingBidPrice(ad.getStartingBidPrice());
-            adDto.setCurrentBidPrice(ad.getCurrentBidPrice());
-        });
-
-        return adDto;
+        return adService.get(id);
     }
 
     @PostMapping("/create")

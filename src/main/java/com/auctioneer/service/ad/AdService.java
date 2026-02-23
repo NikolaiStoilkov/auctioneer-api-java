@@ -1,10 +1,10 @@
-package com.auctioneer.service;
+package com.auctioneer.service.ad;
 
 import com.auctioneer.domain.entities.Ad;
-import com.auctioneer.domain.entities.User;
-import com.auctioneer.dtos.AdDto;
+import com.auctioneer.dtos.ad.AdDto;
 import com.auctioneer.repository.AdRepository;
 import com.auctioneer.repository.UserRepository;
+import com.auctioneer.transformers.ad.AdTransformer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,13 +14,20 @@ public class AdService {
 
     private final AdRepository adRepository;
     private final UserRepository userRepository;
+    private final AdTransformer adTransformer;
 
     public void create(AdDto adDto, Long userId) {
-        Ad ad = new Ad();
-        User user = userRepository.findById(userId).orElseThrow();
-        ad.setAuthor(user);
-        // TODO transform from dto
+        // Check if user is authenticated
+
+
+        Ad ad = adTransformer.transform(adDto);
 
         adRepository.save(ad);
+    }
+
+    public AdDto get(Long adId) {
+        Ad ad = adRepository.findById(adId).orElseThrow();
+
+        return adTransformer.transform(ad);
     }
 }

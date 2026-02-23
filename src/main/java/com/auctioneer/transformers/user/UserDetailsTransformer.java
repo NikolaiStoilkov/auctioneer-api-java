@@ -1,7 +1,7 @@
-package com.auctioneer.transformers;
+package com.auctioneer.transformers.user;
 
 import com.auctioneer.domain.entities.User;
-import com.auctioneer.dtos.UserDto;
+import com.auctioneer.dtos.user.UserDto;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -57,7 +57,7 @@ public class UserDetailsTransformer {
         };
     }
 
-    public UserDetails  transform (UserDto<User> userDto) {
+    public UserDetails  transform (UserDto userDto) {
         return new UserDetails() {
             @Override
             @NonNull

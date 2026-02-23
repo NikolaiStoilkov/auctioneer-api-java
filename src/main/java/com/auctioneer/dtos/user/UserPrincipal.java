@@ -1,4 +1,4 @@
-package com.auctioneer.dtos;
+package com.auctioneer.dtos.user;
 
 import lombok.*;
 

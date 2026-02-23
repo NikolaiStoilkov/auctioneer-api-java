@@ -1,7 +1,7 @@
-package com.auctioneer.transformers;
+package com.auctioneer.transformers.user;
 
 import com.auctioneer.domain.entities.User;
-import com.auctioneer.dtos.UserDto;
+import com.auctioneer.dtos.user.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class UserDtoTransformer {
-    public UserDto<User> transform(User user) {
-        UserDto<User> userDto = new UserDto<>();
+    public UserDto transform(User user) {
+        UserDto userDto = new UserDto();
 
         userDto.setUsername(user.getUsername());
         userDto.setEmail(user.getEmail());
@@ -31,8 +31,8 @@ public class UserDtoTransformer {
         return userDto;
     }
 
-    public UserDto<User> transform (UserDetails userDetails){
-        UserDto<User> userDto = new UserDto<>();
+    public UserDto transform (UserDetails userDetails){
+        UserDto userDto = new UserDto();
 
         userDto.setUsername(userDetails.getUsername());
         userDto.setPasswordHash(userDetails.getPassword());

@@ -1,4 +1,4 @@
-package com.auctioneer.dtos;
+package com.auctioneer.dtos.user;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @RequiredArgsConstructor
-public class UserDto<User> {
+public class UserDto {
     private String username;
     private String passwordHash;
     private String role;
