@@ -41,7 +41,7 @@ public class AdController {
     }
 
     @PostMapping("/bid/{adId}")
-    private void bid(@PathVariable Long adId, @RequestBody BidDto bidDto, @AuthenticationPrincipal UserPrincipal principal) {
+    private void bid(@PathVariable Long adId, @Valid @RequestBody BidDto bidDto, @AuthenticationPrincipal UserPrincipal principal) {
         adService.bid(adId, principal.getId(), bidDto);
     }
 }
