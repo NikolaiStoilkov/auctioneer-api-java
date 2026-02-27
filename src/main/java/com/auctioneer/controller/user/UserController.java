@@ -4,6 +4,7 @@ import com.auctioneer.dtos.user.UserDto;
 
 import com.auctioneer.dtos.user.UserPrincipal;
 import com.auctioneer.service.user.UserService;
+import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,12 +22,12 @@ public class UserController {
     }
 
     @PostMapping("/save")
-    public void create(@RequestBody UserDto userDto, @AuthenticationPrincipal UserPrincipal principal) {
+    public void create(@Valid @RequestBody UserDto userDto, @AuthenticationPrincipal UserPrincipal principal) {
         userService.create(userDto);
     }
 
     @PatchMapping("/edit")
-    public void edit(@RequestBody UserDto userDto, @AuthenticationPrincipal UserPrincipal principal) {
+    public void edit(@Valid @RequestBody UserDto userDto, @AuthenticationPrincipal UserPrincipal principal) {
         userService.edit(userDto);
     }
 
