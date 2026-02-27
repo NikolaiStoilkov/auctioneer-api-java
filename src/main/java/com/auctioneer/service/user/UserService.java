@@ -2,7 +2,7 @@ package com.auctioneer.service.user;
 
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.user.UserDto;
-import com.auctioneer.repository.UserRepository;
+import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.transformers.user.UserTransformer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,5 +21,13 @@ public class UserService {
         User user = userTransformer.transform(userDto);
 
         userRepository.save(user);
+    }
+
+    public void edit(UserDto userDto) {
+
+    }
+
+    public void delete(Long userId) {
+
     }
 }

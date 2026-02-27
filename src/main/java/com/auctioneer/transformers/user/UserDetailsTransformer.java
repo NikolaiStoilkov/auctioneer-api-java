@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -21,7 +22,9 @@ public class UserDetailsTransformer {
             @Override
             @NonNull
             public Collection<? extends GrantedAuthority> getAuthorities() {
-                return List.of(new SimpleGrantedAuthority(user.getRole()));
+                return user.getRoles().stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
             }
 
             @Override
@@ -62,7 +65,9 @@ public class UserDetailsTransformer {
             @Override
             @NonNull
             public Collection<? extends GrantedAuthority> getAuthorities() {
-                return List.of(new SimpleGrantedAuthority(userDto.getRole()));
+                return userDto.getRoles().stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
             }
 
             @Override

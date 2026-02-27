@@ -1,6 +1,7 @@
 package com.auctioneer.dtos.ad;
 
 import com.auctioneer.domain.entities.Image;
+import com.auctioneer.domain.entities.LastBidder;
 import com.auctioneer.domain.entities.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,13 +13,13 @@ import java.util.List;
 @Setter
 public class AdDto {
     private String title;
-    private Image image;
+    private String image;
     private String description;
     private BigDecimal bidStep;
     private BigDecimal startingBidPrice;
     private BigDecimal currentBidPrice;
-    private User author;
-    private User lastBidder;
+    private Long authorId;
+    private List<LastBidder> lastBidders;
     private String location;
     private List<String> images;
 }

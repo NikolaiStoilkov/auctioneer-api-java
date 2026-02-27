@@ -8,6 +8,5 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserPrincipal {
-
     private Long id;
 }

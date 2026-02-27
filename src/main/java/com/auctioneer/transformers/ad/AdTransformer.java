@@ -5,6 +5,8 @@ import com.auctioneer.dtos.ad.AdDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class AdTransformer {
@@ -18,8 +20,8 @@ public class AdTransformer {
         ad.setBidStep(adDto.getBidStep());
         ad.setStartingBidPrice(adDto.getStartingBidPrice());
         ad.setCurrentBidPrice(adDto.getCurrentBidPrice());
-        ad.setAuthor(adDto.getAuthor());
-        ad.setLastBidder(adDto.getLastBidder());
+        ad.setAuthorId(adDto.getAuthorId());
+        ad.setLastBidders(adDto.getLastBidders());
         ad.setLocation(adDto.getLocation());
 
         return ad;
@@ -34,10 +36,16 @@ public class AdTransformer {
         adDto.setBidStep(ad.getBidStep());
         adDto.setStartingBidPrice(ad.getStartingBidPrice());
         adDto.setCurrentBidPrice(ad.getCurrentBidPrice());
-        adDto.setAuthor(ad.getAuthor());
-        adDto.setLastBidder(ad.getLastBidder());
+        adDto.setAuthorId(ad.getAuthorId());
+        adDto.setLastBidders(ad.getLastBidders());
         adDto.setLocation(ad.getLocation());
 
         return adDto;
     }
+
+    public List<AdDto> transform(List<Ad> ads) {
+        return ads.stream().map(this::transform).toList();
+    }
+
+
 }

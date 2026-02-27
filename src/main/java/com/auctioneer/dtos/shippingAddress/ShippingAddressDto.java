@@ -1,29 +1,18 @@
-package com.auctioneer.dtos.forms;
+package com.auctioneer.dtos.shippingAddress;
 
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
-public class UserAuthSignUpDto {
-    private String username;
-    private String password;
-
-    //User
+public class ShippingAddressDto {
     private String firstName;
     private String middleName;
-    private List<String> roles;
     private String lastName;
-    private String ucn;
+    private String phoneNumber;
     private String country;
     private String city;
     private String street;
     private String streetNumber;
     private String postalCode;
-    private String phoneNumber;
-    private String email;
 }
-
-
