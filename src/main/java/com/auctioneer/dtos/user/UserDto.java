@@ -4,13 +4,15 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 @RequiredArgsConstructor
 public class UserDto {
     private String username;
     private String passwordHash;
-    private String role;
+    private List<String> roles;
     private String firstName;
     private String middleName;
     private String lastName;

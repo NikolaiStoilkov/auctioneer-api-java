@@ -19,7 +19,7 @@ public class JwtService {
 
     public static final String SECRET = "5367566859703373367639792F423F452848284D6251655468576D5A71347437";
 
-    public String generateToken(Long userId, Map<String, Object> claims) { // Use email as username
+    public String generateToken(Long userId, Map<String, Object> claims) {
         return Jwts.builder()
                 .claims(claims)
                 .subject(userId.toString())
