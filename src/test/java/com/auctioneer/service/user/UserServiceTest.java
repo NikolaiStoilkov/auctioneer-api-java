@@ -69,7 +69,7 @@ class UserServiceTest {
     }
 
     @Test
-    void get_shouldReturnUserDto_whenUserExists() {
+    void getShouldReturnUserDtoWhenUserExists() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
 
         UserDto result = userService.get(1L);
@@ -84,7 +84,7 @@ class UserServiceTest {
     }
 
     @Test
-    void get_shouldThrowException_whenUserDoesNotExist() {
+    void getShouldThrowExceptionWhenUserDoesNotExist() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> userService.get(99L));
@@ -92,7 +92,7 @@ class UserServiceTest {
     }
 
     @Test
-    void create_shouldSaveUser() {
+    void createShouldSaveUser() {
         when(userRepository.save(any(User.class))).thenReturn(sampleUser);
 
         userService.create(sampleUserDto);
@@ -101,7 +101,7 @@ class UserServiceTest {
     }
 
     @Test
-    void edit_shouldSaveEditedUser() {
+    void editShouldSaveEditedUser() {
         when(userRepository.save(any(User.class))).thenReturn(sampleUser);
 
         userService.edit(sampleUserDto);
@@ -110,7 +110,7 @@ class UserServiceTest {
     }
 
     @Test
-    void delete_shouldDeleteUser() {
+    void deleteShouldDeleteUser() {
         doNothing().when(userRepository).deleteById(1L);
 
         userService.delete(1L);
@@ -118,4 +118,3 @@ class UserServiceTest {
         verify(userRepository).deleteById(1L);
     }
 }
-

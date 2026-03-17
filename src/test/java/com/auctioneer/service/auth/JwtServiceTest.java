@@ -24,7 +24,7 @@ class JwtServiceTest {
     }
 
     @Test
-    void generateToken_shouldReturnNonNullToken() {
+    void generateTokenShouldReturnNonNullToken() {
         String token = jwtService.generateToken(1L, claims);
 
         assertNotNull(token);
@@ -32,7 +32,7 @@ class JwtServiceTest {
     }
 
     @Test
-    void extractUserId_shouldReturnCorrectUserId() {
+    void extractUserIdShouldReturnCorrectUserId() {
         String token = jwtService.generateToken(42L, claims);
 
         String userId = jwtService.extractUserId(token);
@@ -41,7 +41,7 @@ class JwtServiceTest {
     }
 
     @Test
-    void extractExpiration_shouldReturnFutureDate() {
+    void extractExpirationShouldReturnFutureDate() {
         String token = jwtService.generateToken(1L, claims);
 
         Date expiration = jwtService.extractExpiration(token);
@@ -51,7 +51,7 @@ class JwtServiceTest {
     }
 
     @Test
-    void extractAllClaims_shouldContainCustomClaims() {
+    void extractAllClaimsShouldContainCustomClaims() {
         String token = jwtService.generateToken(1L, claims);
 
         Claims extractedClaims = jwtService.extractAllClaims(token);
@@ -62,7 +62,7 @@ class JwtServiceTest {
     }
 
     @Test
-    void isTokenExpired_shouldReturnFalse_forFreshToken() {
+    void isTokenExpiredShouldReturnFalseForFreshToken() {
         String token = jwtService.generateToken(1L, claims);
 
         Boolean expired = jwtService.isTokenExpired(token);
@@ -71,7 +71,7 @@ class JwtServiceTest {
     }
 
     @Test
-    void authorize_shouldReturnToken_whenPasswordMatches() {
+    void authorizeShouldReturnTokenWhenPasswordMatches() {
         String token = jwtService.authorize(1L, true, claims);
 
         assertNotNull(token);
@@ -79,7 +79,7 @@ class JwtServiceTest {
     }
 
     @Test
-    void authorize_shouldThrowException_whenPasswordDoesNotMatch() {
+    void authorizeShouldThrowExceptionWhenPasswordDoesNotMatch() {
         RuntimeException exception = assertThrows(
                 RuntimeException.class,
                 () -> jwtService.authorize(1L, false, claims)
@@ -89,14 +89,14 @@ class JwtServiceTest {
     }
 
     @Test
-    void verify_shouldReturnFalse_forInvalidToken() {
+    void verifyShouldReturnFalseForInvalidToken() {
         Boolean result = jwtService.verify("invalid.token.here");
 
         assertFalse(result);
     }
 
     @Test
-    void verify_shouldHandleFreshToken() {
+    void verifyShouldHandleFreshToken() {
         String token = jwtService.generateToken(1L, claims);
 
         // verify() returns true if token is expired (before current date)
@@ -107,7 +107,7 @@ class JwtServiceTest {
     }
 
     @Test
-    void generateToken_shouldProduceDifferentTokensForDifferentUsers() {
+    void generateTokenShouldProduceDifferentTokensForDifferentUsers() {
         String token1 = jwtService.generateToken(1L, claims);
         String token2 = jwtService.generateToken(2L, claims);
 
@@ -115,7 +115,7 @@ class JwtServiceTest {
     }
 
     @Test
-    void extractClaim_shouldExtractSubject() {
+    void extractClaimShouldExtractSubject() {
         String token = jwtService.generateToken(5L, claims);
 
         String subject = jwtService.extractClaim(token, Claims::getSubject);
@@ -123,4 +123,3 @@ class JwtServiceTest {
         assertEquals("5", subject);
     }
 }
-

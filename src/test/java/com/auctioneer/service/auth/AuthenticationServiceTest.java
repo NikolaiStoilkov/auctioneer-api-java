@@ -30,7 +30,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void initialize_shouldReturnToken() {
+    void initializeShouldReturnToken() {
         when(jwtService.generateToken(1L, claims)).thenReturn("jwt-token");
 
         String result = authenticationService.initialize(1L, claims);
@@ -40,7 +40,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void authorize_shouldReturnToken_whenPasswordMatches() {
+    void authorizeShouldReturnTokenWhenPasswordMatches() {
         when(jwtService.authorize(1L, true, claims)).thenReturn("jwt-token");
 
         String result = authenticationService.authorize(1L, true, claims);
@@ -50,7 +50,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void authorize_shouldThrowException_whenPasswordDoesNotMatch() {
+    void authorizeShouldThrowExceptionWhenPasswordDoesNotMatch() {
         when(jwtService.authorize(1L, false, claims))
                 .thenThrow(new RuntimeException("Invalid credentials"));
 
@@ -60,7 +60,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void verify_shouldReturnTrue_whenTokenIsValid() {
+    void verifyShouldReturnTrueWhenTokenIsValid() {
         when(jwtService.verify("valid-token")).thenReturn(true);
 
         Boolean result = authenticationService.verify("valid-token");
@@ -70,7 +70,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void verify_shouldReturnFalse_whenTokenIsInvalid() {
+    void verifyShouldReturnFalseWhenTokenIsInvalid() {
         when(jwtService.verify("invalid-token")).thenReturn(false);
 
         Boolean result = authenticationService.verify("invalid-token");
@@ -79,4 +79,3 @@ class AuthenticationServiceTest {
         verify(jwtService).verify("invalid-token");
     }
 }
-

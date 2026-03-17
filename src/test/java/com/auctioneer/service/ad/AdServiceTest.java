@@ -75,7 +75,7 @@ class AdServiceTest {
     }
 
     @Test
-    void get_shouldReturnAdDto_whenAdExists() {
+    void getShouldReturnAdDtoWhenAdExists() {
         when(adRepository.findById(1L)).thenReturn(Optional.of(sampleAd));
 
         AdDto result = adService.get(1L);
@@ -89,7 +89,7 @@ class AdServiceTest {
     }
 
     @Test
-    void get_shouldThrowException_whenAdDoesNotExist() {
+    void getShouldThrowExceptionWhenAdDoesNotExist() {
         when(adRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> adService.get(99L));
@@ -97,7 +97,7 @@ class AdServiceTest {
     }
 
     @Test
-    void create_shouldSaveAd() {
+    void createShouldSaveAd() {
         when(adRepository.save(any(Ad.class))).thenReturn(sampleAd);
 
         adService.create(sampleAdDto, 1L);
@@ -106,7 +106,7 @@ class AdServiceTest {
     }
 
     @Test
-    void getMyAds_shouldReturnAdsForAuthor() {
+    void getMyAdsShouldReturnAdsForAuthor() {
         List<Ad> ads = List.of(sampleAd);
         when(adRepository.findAdByAuthorId(1L)).thenReturn(ads);
 
@@ -117,7 +117,7 @@ class AdServiceTest {
     }
 
     @Test
-    void edit_shouldSaveEditedAd() {
+    void editShouldSaveEditedAd() {
         when(adRepository.save(any(Ad.class))).thenReturn(sampleAd);
 
         adService.edit(sampleAdDto);
@@ -126,7 +126,7 @@ class AdServiceTest {
     }
 
     @Test
-    void bid_shouldUpdateCurrentBidPrice_whenBidIsHigher() {
+    void bidShouldUpdateCurrentBidPriceWhenBidIsHigher() {
         BidDto bidDto = new BidDto();
         bidDto.setAmount(new BigDecimal("150.00"));
 
@@ -143,7 +143,7 @@ class AdServiceTest {
     }
 
     @Test
-    void bid_shouldThrowException_whenBidIsLowerThanCurrentPrice() {
+    void bidShouldThrowExceptionWhenBidIsLowerThanCurrentPrice() {
         BidDto bidDto = new BidDto();
         bidDto.setAmount(new BigDecimal("50.00"));
 
@@ -160,7 +160,7 @@ class AdServiceTest {
     }
 
     @Test
-    void bid_shouldThrowException_whenBidEqualsCurrentPrice() {
+    void bidShouldThrowExceptionWhenBidEqualsCurrentPrice() {
         BidDto bidDto = new BidDto();
         bidDto.setAmount(new BigDecimal("100.00"));
 
@@ -172,7 +172,7 @@ class AdServiceTest {
     }
 
     @Test
-    void bid_shouldThrowException_whenAdNotFound() {
+    void bidShouldThrowExceptionWhenAdNotFound() {
         BidDto bidDto = new BidDto();
         bidDto.setAmount(new BigDecimal("200.00"));
 
@@ -182,7 +182,7 @@ class AdServiceTest {
     }
 
     @Test
-    void bid_shouldThrowException_whenUserNotFound() {
+    void bidShouldThrowExceptionWhenUserNotFound() {
         BidDto bidDto = new BidDto();
         bidDto.setAmount(new BigDecimal("200.00"));
 
@@ -192,4 +192,3 @@ class AdServiceTest {
         assertThrows(IllegalArgumentException.class, () -> adService.bid(1L, 99L, bidDto));
     }
 }
-

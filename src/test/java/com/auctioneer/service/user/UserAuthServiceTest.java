@@ -76,7 +76,7 @@ class UserAuthServiceTest {
     // --- signUp tests ---
 
     @Test
-    void signUp_shouldReturnToken_whenUsernameAndEmailAreUnique() {
+    void signUpShouldReturnTokenWhenUsernameAndEmailAreUnique() {
         when(userRepository.existsUserByUsername("john_doe")).thenReturn(false);
         when(userRepository.existsUserByEmail("john@example.com")).thenReturn(false);
         when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
@@ -92,7 +92,7 @@ class UserAuthServiceTest {
     }
 
     @Test
-    void signUp_shouldReturnMessage_whenUsernameAlreadyExists() {
+    void signUpShouldReturnMessageWhenUsernameAlreadyExists() {
         when(userRepository.existsUserByUsername("john_doe")).thenReturn(true);
 
         String result = userAuthService.signUp(signUpDto);
@@ -103,7 +103,7 @@ class UserAuthServiceTest {
     }
 
     @Test
-    void signUp_shouldReturnMessage_whenEmailAlreadyExists() {
+    void signUpShouldReturnMessageWhenEmailAlreadyExists() {
         when(userRepository.existsUserByUsername("john_doe")).thenReturn(false);
         when(userRepository.existsUserByEmail("john@example.com")).thenReturn(true);
 
@@ -115,7 +115,7 @@ class UserAuthServiceTest {
     }
 
     @Test
-    void signUp_shouldEncodePasswordBeforeSaving() {
+    void signUpShouldEncodePasswordBeforeSaving() {
         when(userRepository.existsUserByUsername("john_doe")).thenReturn(false);
         when(userRepository.existsUserByEmail("john@example.com")).thenReturn(false);
         when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
@@ -130,7 +130,7 @@ class UserAuthServiceTest {
     // --- signIn tests ---
 
     @Test
-    void signIn_shouldReturnToken_whenCredentialsAreValid() {
+    void signInShouldReturnTokenWhenCredentialsAreValid() {
         when(userRepository.findUserByUsername("john_doe")).thenReturn(sampleUser);
         when(passwordEncoder.matches("password123", "encodedPassword")).thenReturn(true);
         when(authenticationService.authorize(eq(1L), eq(true), anyMap())).thenReturn("jwt-token");
@@ -144,7 +144,7 @@ class UserAuthServiceTest {
     }
 
     @Test
-    void signIn_shouldReturnMessage_whenUserNotFound() {
+    void signInShouldReturnMessageWhenUserNotFound() {
         when(userRepository.findUserByUsername("john_doe")).thenReturn(null);
 
         String result = userAuthService.signIn(signInDto);
@@ -155,7 +155,7 @@ class UserAuthServiceTest {
     }
 
     @Test
-    void signIn_shouldCallAuthorizeWithFalse_whenPasswordDoesNotMatch() {
+    void signInShouldCallAuthorizeWithFalseWhenPasswordDoesNotMatch() {
         when(userRepository.findUserByUsername("john_doe")).thenReturn(sampleUser);
         when(passwordEncoder.matches("password123", "encodedPassword")).thenReturn(false);
         when(authenticationService.authorize(eq(1L), eq(false), anyMap()))
@@ -166,4 +166,3 @@ class UserAuthServiceTest {
         verify(authenticationService).authorize(eq(1L), eq(false), anyMap());
     }
 }
-

@@ -57,7 +57,7 @@ class ShippingServiceTest {
     }
 
     @Test
-    void get_shouldReturnShippingAddressDto_whenFound() {
+    void getShouldReturnShippingAddressDtoWhenFound() {
         when(shippingRepository.findById(1L)).thenReturn(Optional.of(sampleShippingAddress));
 
         ShippingAddressDto result = shippingService.get(1L);
@@ -76,7 +76,7 @@ class ShippingServiceTest {
     }
 
     @Test
-    void get_shouldThrowException_whenNotFound() {
+    void getShouldThrowExceptionWhenNotFound() {
         when(shippingRepository.findById(99L)).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(
@@ -89,7 +89,7 @@ class ShippingServiceTest {
     }
 
     @Test
-    void save_shouldPersistShippingAddress() {
+    void saveShouldPersistShippingAddress() {
         when(shippingRepository.save(any(ShippingAddress.class))).thenReturn(sampleShippingAddress);
 
         shippingService.save(sampleShippingAddressDto);
@@ -98,7 +98,7 @@ class ShippingServiceTest {
     }
 
     @Test
-    void edit_shouldUpdateExistingShippingAddress() {
+    void editShouldUpdateExistingShippingAddress() {
         when(shippingRepository.findById(1L)).thenReturn(Optional.of(sampleShippingAddress));
         when(shippingRepository.save(any(ShippingAddress.class))).thenReturn(sampleShippingAddress);
 
@@ -122,7 +122,7 @@ class ShippingServiceTest {
     }
 
     @Test
-    void edit_shouldThrowException_whenNotFound() {
+    void editShouldThrowExceptionWhenNotFound() {
         when(shippingRepository.findById(99L)).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(
@@ -136,7 +136,7 @@ class ShippingServiceTest {
     }
 
     @Test
-    void edit_shouldPreserveId_afterCopyProperties() {
+    void editShouldPreserveIdAfterCopyProperties() {
         when(shippingRepository.findById(1L)).thenReturn(Optional.of(sampleShippingAddress));
         when(shippingRepository.save(any(ShippingAddress.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -149,4 +149,3 @@ class ShippingServiceTest {
         ));
     }
 }
-
