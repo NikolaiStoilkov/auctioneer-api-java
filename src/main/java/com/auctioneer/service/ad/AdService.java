@@ -7,11 +7,13 @@ import com.auctioneer.dtos.ad.AdDto;
 import com.auctioneer.dtos.ad.BidDto;
 import com.auctioneer.repository.ad.AdRepository;
 import com.auctioneer.repository.user.UserRepository;
-import com.auctioneer.transformers.ad.AdTransformer;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -19,32 +21,41 @@ import java.util.List;
 public class AdService {
 
     private final AdRepository adRepository;
-    private final AdTransformer adTransformer;
     private final UserRepository userRepository;
 
     public AdDto get(Long adId) {
         Ad ad = adRepository.findById(adId).orElseThrow();
 
-        return adTransformer.transform(ad);
+        AdDto adDto = new AdDto();
+
+        BeanUtils.copyProperties(ad, adDto);
+
+        return adDto;
     }
 
     public void create(AdDto adDto, Long userId) {
-        Ad ad = adTransformer.transform(adDto);
+        Ad ad = new Ad();
         ad.setAuthorId(userId);
+
+        BeanUtils.copyProperties(adDto, ad);
 
         adRepository.save(ad);
     }
 
-    public List<AdDto> getMyAds(Long userId) {
-        List<Ad> ads = adRepository.findAllByUserId(userId);
+    public List<AdDto> getMyAds(Long authorId) {
+        List<Ad> ads = adRepository.findAdByAuthorId(authorId);
 
+        List<AdDto> adDtoList = Collections.singletonList(new AdDto());
 
-        return adTransformer.transform(ads);
+        BeanUtils.copyProperties(ads, adDtoList);
+
+        return adDtoList;
     }
 
-    //TODO: Refactor with correct way to update ad (without creating new one)
     public void edit(AdDto adDto) {
-        Ad ad = adTransformer.transform(adDto);
+        Ad ad = new Ad();
+
+        BeanUtils.copyProperties(adDto, ad);
 
         adRepository.save(ad);
     }
