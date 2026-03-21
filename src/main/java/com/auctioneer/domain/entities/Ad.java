@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Setter
 @Getter
@@ -20,9 +21,9 @@ public class Ad {
     @Column(name = "title", nullable = false, length = 100)
     private String title;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "image_code")
-    private Image image;
+    //    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "image")
+    private String image;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
@@ -36,14 +37,18 @@ public class Ad {
     @Column(name = "current_bid_price", nullable = false)
     private BigDecimal currentBidPrice;
 
-    @ManyToOne
+    @Column
     @JoinColumn(name = "author_id", nullable = false)
-    private User author;
+    private Long authorId;
 
-    @ManyToOne
-    @JoinColumn(name = "last_bidder_id")
-    private User lastBidder;
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "last_bidder")
+    private List<LastBidder> lastBidders;
 
     @Column(name = "location", length = 100)
     private String location;
+
+//    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "images")
+    private List<String> images;
 }

@@ -3,12 +3,12 @@ package com.auctioneer.service.user;
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.forms.UserAuthSignInDto;
 import com.auctioneer.dtos.forms.UserAuthSignUpDto;
-import com.auctioneer.repository.UserRepository;
+import com.auctioneer.dtos.user.UserDto;
+import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.service.auth.AuthenticationService;
 import com.auctioneer.transformers.user.UserTransformer;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,6 @@ import java.util.Map;
 public class UserAuthService {
     private final AuthenticationService authenticationService;
     private final PasswordEncoder passwordEncoder;
-    private final UserTransformer userTransformer;
     private final UserRepository userRepository;
 
     public String signUp(UserAuthSignUpDto userAuthSignUpDto) {
@@ -41,9 +40,11 @@ public class UserAuthService {
 
         Map<String, Object> claims = Map.of("ROLES", List.of("USER"));
 
-        User transformedUser = userTransformer.transform(userAuthSignUpDto);
+        User user = new User();
 
-        Long userId = userRepository.save(transformedUser)
+        BeanUtils.copyProperties(userAuthSignUpDto, user);
+
+        Long userId = userRepository.save(user)
                 .getId();
 
         return authenticationService.initialize(
@@ -68,7 +69,7 @@ public class UserAuthService {
 
         Boolean isPasswordMatched = passwordEncoder.matches(password, storedPassword);
 
-        Map<String, Object> claims = Map.of("ROLES", user.getRole());
+        Map<String, Object> claims = Map.of("ROLES", user.getRoles());
 
         return authenticationService.authorize(
                 userId,

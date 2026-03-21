@@ -1,4 +1,4 @@
-package com.auctioneer.repository;
+package com.auctioneer.repository.user;
 
 import com.auctioneer.domain.entities.User;
 

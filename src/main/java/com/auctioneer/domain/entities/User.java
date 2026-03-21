@@ -1,10 +1,13 @@
 package com.auctioneer.domain.entities;
 
+import com.auctioneer.converters.StringListConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 import lombok.*;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.List;
 
 @Entity
 @Setter
@@ -50,8 +53,8 @@ public class User {
     @Column(name = "phone_number", length = 30)
     private String phoneNumber;
 
-    @Column(name = "role", nullable = false, length = 100)
-    private String role;
+    @Column(name = "roles")
+    private List<String> roles;
 
     @Email
     @Column(name = "email", nullable = false, length = 100, unique = true)

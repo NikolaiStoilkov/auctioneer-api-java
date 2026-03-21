@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 
 @Component
@@ -21,7 +23,7 @@ public class UserTransformer {
         user.setUsername(userDto.getUsername());
         user.setPasswordHash(userDto.getPasswordHash());
         user.setEmail(userDto.getEmail());
-        user.setRole(userDto.getRole());
+        user.setRoles(userDto.getRoles());
         user.setFirstName(userDto.getFirstName());
         user.setMiddleName(userDto.getMiddleName());
         user.setLastName(userDto.getLastName());
@@ -45,7 +47,9 @@ public class UserTransformer {
         Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
         if (!authorities.isEmpty()) {
             String role = authorities.iterator().next().getAuthority();
-            transformedUser.setRole(role);
+
+            assert role != null;
+            transformedUser.setRoles(List.of(role));
         }
 
         return transformedUser;
@@ -56,7 +60,7 @@ public class UserTransformer {
 
         user.setUsername(userAuthSignUpDto.getUsername());
         user.setPasswordHash(userAuthSignUpDto.getPassword());
-        user.setRole(userAuthSignUpDto.getRole());
+        user.setRoles(userAuthSignUpDto.getRoles());
         user.setFirstName(userAuthSignUpDto.getFirstName());
         user.setMiddleName(userAuthSignUpDto.getMiddleName());
         user.setLastName(userAuthSignUpDto.getLastName());
