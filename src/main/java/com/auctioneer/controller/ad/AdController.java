@@ -1,6 +1,7 @@
 package com.auctioneer.controller.ad;
 
 import com.auctioneer.dtos.ad.AdDto;
+import com.auctioneer.dtos.ad.AdFilterDto;
 import com.auctioneer.dtos.ad.BidDto;
 import com.auctioneer.dtos.user.UserPrincipal;
 
@@ -43,5 +44,11 @@ public class AdController {
     @PostMapping("/bid/{adId}")
     private void bid(@PathVariable Long adId, @Valid @RequestBody BidDto bidDto, @AuthenticationPrincipal UserPrincipal principal) {
         adService.bid(adId, principal.getId(), bidDto);
+    }
+
+
+    @GetMapping("/pagination")
+    private List<AdDto> getAdsByPagination(@ModelAttribute AdFilterDto filter) {
+        return adService.pagination(filter);
     }
 }

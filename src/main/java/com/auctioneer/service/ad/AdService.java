@@ -5,6 +5,7 @@ import com.auctioneer.domain.entities.LastBidder;
 import com.auctioneer.domain.entities.Status;
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.ad.AdDto;
+import com.auctioneer.dtos.ad.AdFilterDto;
 import com.auctioneer.dtos.ad.BidDto;
 import com.auctioneer.filters.AdFilter;
 import com.auctioneer.repository.ad.AdRepository;
@@ -103,7 +104,7 @@ public class AdService {
         adRepository.save(existingAd);
     }
 
-    public void updateStatus(){
+    public void updateStatus() {
         List<Ad> ads = adRepository.findAdByStatus(Status.INACTIVE);
 
         ads.forEach(ad -> {
@@ -113,14 +114,16 @@ public class AdService {
         adRepository.saveAll(ads);
     }
 
-    public List<Ad> pagination(AdFilter filter){
-        PageRequest pageRequest = PageRequest.of(1, 10);
-        Page<Ad> page = adRepository.findPage(pageRequest);
+    public List<AdDto> pagination(AdFilterDto filter) {
+//        int page = filter.getPage();
+//        int size = filter.getSize();
+//
+//        PageRequest pageRequest = PageRequest.of(page, size); // page = 2, page - 1 = 1
+//        Page<Ad> adsPage = adRepository.findPage(pageRequest); // I might need explanation why we need this. In the example we had to fetch them, but technically we don't use it anywhere.
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Ad> cq = cb.createQuery(Ad.class);
         Root<Ad> root = cq.from(Ad.class);
-
 
         List<Predicate> predicates = new ArrayList<>();
         if (filter.getActive() != null) {
@@ -136,7 +139,7 @@ public class AdService {
         }
 
         cq.select(root)
-        .where(cb.and(predicates));
+                .where(cb.and(predicates));
 
         TypedQuery<Ad> query = entityManager.createQuery(cq);
 
@@ -144,7 +147,19 @@ public class AdService {
         query.setFirstResult((filter.getPage() - 1) * filter.getSize()); // page = 2, (2 - 1) * 10 = 10
         query.setMaxResults(filter.getSize());
 
-        return query.getResultList();
+        List<AdDto> adDtoList = new ArrayList<>();
+
+        List<Ad> ads = query.getResultList();
+
+        for (Ad ad : ads) {
+            AdDto adDto = new AdDto();
+
+            BeanUtils.copyProperties(ad, adDto);
+
+            adDtoList.add(adDto);
+        }
+
+        return adDtoList;
     }
 }
 
