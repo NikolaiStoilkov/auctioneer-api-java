@@ -28,7 +28,7 @@ public class UserController {
 
     @PatchMapping("/edit")
     public void edit(@Valid @RequestBody UserDto userDto, @AuthenticationPrincipal UserPrincipal principal) {
-        userService.edit(userDto);
+        userService.edit(principal.getId(), userDto);
     }
 
     @DeleteMapping("/request/delete/{id}")

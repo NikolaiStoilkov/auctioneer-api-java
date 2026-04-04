@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -22,33 +21,33 @@ public class AdController {
     private final AdService adService;
 
     @GetMapping("/{id}")
-    private AdDto get(@PathVariable Long id) {
+    public AdDto get(@PathVariable Long id) {
         return adService.get(id);
     }
 
     @GetMapping("/my-ads")
-    private List<AdDto> getMyAds(@AuthenticationPrincipal UserPrincipal principal) {
+    public List<AdDto> getMyAds(@AuthenticationPrincipal UserPrincipal principal) {
         return adService.getMyAds(principal.getId());
     }
 
     @PostMapping("/create")
-    private void create(@Valid @RequestBody AdDto ad, @AuthenticationPrincipal UserPrincipal principal) {
+    public void create(@Valid @RequestBody AdDto ad, @AuthenticationPrincipal UserPrincipal principal) {
         adService.create(ad, principal.getId());
     }
 
     @PostMapping("/edit/{adId}")
-    private void edit(@Valid @RequestBody AdDto ad,@AuthenticationPrincipal UserPrincipal principal) {
-        adService.edit(ad);
+    public void edit(@PathVariable Long adId, @Valid @RequestBody AdDto ad, @AuthenticationPrincipal UserPrincipal principal) {
+        adService.edit(adId, ad);
     }
 
     @PostMapping("/bid/{adId}")
-    private void bid(@PathVariable Long adId, @Valid @RequestBody BidDto bidDto, @AuthenticationPrincipal UserPrincipal principal) {
+    public void bid(@PathVariable Long adId, @Valid @RequestBody BidDto bidDto, @AuthenticationPrincipal UserPrincipal principal) {
         adService.bid(adId, principal.getId(), bidDto);
     }
 
 
     @GetMapping("/pagination")
-    private List<AdDto> getAdsByPagination(@ModelAttribute AdFilterDto filter) {
+    public List<AdDto> getAdsByPagination(@ModelAttribute AdFilterDto filter) {
         return adService.pagination(filter);
     }
 }

@@ -33,6 +33,7 @@ public class SecurityConfig {
 
                         // Ad endpoints
                         .requestMatchers("/api/ads/{id}").permitAll()
+                        .requestMatchers("/api/ads/pagination").permitAll()
                         .requestMatchers("/api/ads/my-ads").hasAuthority("USER")
                         .requestMatchers("/api/ads/create").hasAuthority("USER")
                         .requestMatchers("/api/ads/edit/{id}").hasAuthority("USER")
@@ -49,12 +50,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/shipping/save").hasAuthority("USER")
                         .requestMatchers("/api/shipping/edit/{id}").hasAuthority("USER")
 
-
                         // Comment endpoints
                         .requestMatchers("/api/comments/{adId}").permitAll()
-                        .requestMatchers("/api/comments/create/{adId}").hasAuthority("USER") // HOW TO ADD MULTIPLE ROLES HERE
-                        .requestMatchers("/api/comments/edit/{adId}").hasAuthority("USER")
-                        .requestMatchers("/api/comments/delete/{id}").hasAuthority("USER")
+                        .requestMatchers("/api/comments/create/{adId}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/comments/edit/{adId}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/comments/delete/{id}").hasAnyAuthority("USER", "ADMIN")
 
                         // All other endpoints require authentication
                         .anyRequest().authenticated()

@@ -7,7 +7,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
 @Entity
 @Table(
         name = "SHIPPING_ADDRESSES"

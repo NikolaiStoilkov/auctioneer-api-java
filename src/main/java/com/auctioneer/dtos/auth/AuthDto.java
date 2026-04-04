@@ -1,6 +1,6 @@
 package com.auctioneer.dtos.auth;
 
-import com.auctioneer.domain.entities.User;
+import com.auctioneer.dtos.user.UserDto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class AuthDto {
-    private User user;
+    private UserDto user;
     private String token;
 }

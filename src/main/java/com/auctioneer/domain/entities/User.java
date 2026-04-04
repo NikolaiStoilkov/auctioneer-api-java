@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 import lombok.*;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -55,6 +54,7 @@ public class User {
     private String phoneNumber;
 
     @Column(name = "roles")
+    @Convert(converter = StringListConverter.class)
     private List<String> roles;
 
     @Email

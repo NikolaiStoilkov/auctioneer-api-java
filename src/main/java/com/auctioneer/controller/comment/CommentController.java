@@ -2,6 +2,7 @@ package com.auctioneer.controller.comment;
 
 import com.auctioneer.dtos.comment.CommentDto;
 import com.auctioneer.service.comment.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,12 +20,12 @@ public class CommentController {
     }
 
     @PostMapping("/create/{adId}")
-    public void create(@RequestBody CommentDto commentDto) {
+    public void create(@Valid @RequestBody CommentDto commentDto) {
         commentService.create(commentDto);
     }
 
     @PutMapping("/edit")
-    public void edit(@RequestBody CommentDto commentDto) {
+    public void edit(@Valid @RequestBody CommentDto commentDto) {
         commentService.edit(commentDto);
     }
 

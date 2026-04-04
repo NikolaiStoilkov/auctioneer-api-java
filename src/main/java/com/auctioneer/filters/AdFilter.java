@@ -1,11 +1,13 @@
 package com.auctioneer.filters;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Getter
-private static class AdFilter {
+@Setter
+public class AdFilter {
     private Boolean active;
     private LocalDate dateFrom;
     private LocalDate dateTo;

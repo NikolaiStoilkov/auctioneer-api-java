@@ -16,7 +16,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
 
     public List<CommentDto> getAll(Long adId) {
-        List<Comment> comments = commentRepository.findAllByAd_Id(adId);
+        List<Comment> comments = commentRepository.findAllByAdId(adId);
 
         List<CommentDto> commentsDto = new ArrayList<>();
 

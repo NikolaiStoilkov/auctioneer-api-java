@@ -102,9 +102,11 @@ class UserServiceTest {
 
     @Test
     void editShouldSaveEditedUser() {
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
         when(userRepository.save(any(User.class))).thenReturn(sampleUser);
 
-        userService.edit(sampleUserDto);
+        userService.edit(1L, sampleUserDto);
 
         verify(userRepository).save(any(User.class));
     }

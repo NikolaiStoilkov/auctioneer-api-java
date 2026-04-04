@@ -118,9 +118,10 @@ class AdServiceTest {
 
     @Test
     void editShouldSaveEditedAd() {
+        when(adRepository.findById(1L)).thenReturn(Optional.of(sampleAd));
         when(adRepository.save(any(Ad.class))).thenReturn(sampleAd);
 
-        adService.edit(sampleAdDto);
+        adService.edit(1L, sampleAdDto);
 
         verify(adRepository).save(any(Ad.class));
     }
