@@ -14,7 +14,6 @@ public class ShippingService {
     private final ShippingRepository shippingRepository;
 
     public ShippingAddressDto get(Long userId) {
-        // Use BeanUtils to copy properties from ShippingAddress to ShippingAddressDto
         ShippingAddress shippingAddress = shippingRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Shipping address not found for user id: " + userId));
 

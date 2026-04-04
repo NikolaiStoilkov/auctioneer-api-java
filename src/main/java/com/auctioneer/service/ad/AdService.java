@@ -2,17 +2,28 @@ package com.auctioneer.service.ad;
 
 import com.auctioneer.domain.entities.Ad;
 import com.auctioneer.domain.entities.LastBidder;
+import com.auctioneer.domain.entities.Status;
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.ad.AdDto;
 import com.auctioneer.dtos.ad.BidDto;
+import com.auctioneer.filters.AdFilter;
 import com.auctioneer.repository.ad.AdRepository;
 import com.auctioneer.repository.user.UserRepository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,6 +33,7 @@ public class AdService {
 
     private final AdRepository adRepository;
     private final UserRepository userRepository;
+    private final EntityManager entityManager;
 
     public AdDto get(Long adId) {
         Ad ad = adRepository.findById(adId).orElseThrow();
@@ -89,6 +101,50 @@ public class AdService {
         existingAd.getLastBidders().add(lastBidder);
 
         adRepository.save(existingAd);
+    }
+
+    public void updateStatus(){
+        List<Ad> ads = adRepository.findAdByStatus(Status.INACTIVE);
+
+        ads.forEach(ad -> {
+            ad.setStatus(Status.ACTIVE);
+        });
+
+        adRepository.saveAll(ads);
+    }
+
+    public List<Ad> pagination(AdFilter filter){
+        PageRequest pageRequest = PageRequest.of(1, 10);
+        Page<Ad> page = adRepository.findPage(pageRequest);
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Ad> cq = cb.createQuery(Ad.class);
+        Root<Ad> root = cq.from(Ad.class);
+
+
+        List<Predicate> predicates = new ArrayList<>();
+        if (filter.getActive() != null) {
+            predicates.add(cb.equal(root.get(String.valueOf(Status.ACTIVE)), filter.getActive()));
+        }
+
+        if (filter.getDateFrom() != null) {
+            predicates.add(cb.greaterThanOrEqualTo(root.get("startingDate"), filter.getDateFrom()));
+        }
+
+        if (filter.getDateTo() != null) {
+            predicates.add(cb.lessThanOrEqualTo(root.get("startingDate"), filter.getDateFrom()));
+        }
+
+        cq.select(root)
+        .where(cb.and(predicates));
+
+        TypedQuery<Ad> query = entityManager.createQuery(cq);
+
+        // Apply pagination
+        query.setFirstResult((filter.getPage() - 1) * filter.getSize()); // page = 2, (2 - 1) * 10 = 10
+        query.setMaxResults(filter.getSize());
+
+        return query.getResultList();
     }
 }
 

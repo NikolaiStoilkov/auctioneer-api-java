@@ -49,6 +49,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/shipping/save").hasAuthority("USER")
                         .requestMatchers("/api/shipping/edit/{id}").hasAuthority("USER")
 
+
+                        // Comment endpoints
+                        .requestMatchers("/api/comments/{adId}").permitAll()
+                        .requestMatchers("/api/comments/create/{adId}").hasAuthority("USER") // HOW TO ADD MULTIPLE ROLES HERE
+                        .requestMatchers("/api/comments/edit/{adId}").hasAuthority("USER")
+                        .requestMatchers("/api/comments/delete/{id}").hasAuthority("USER")
+
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
