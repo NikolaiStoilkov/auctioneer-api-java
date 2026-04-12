@@ -1,10 +1,12 @@
 package com.auctioneer.domain.entities;
 
+import com.auctioneer.converters.StringListConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Setter
@@ -21,8 +23,7 @@ public class Ad {
     @Column(name = "title", nullable = false, length = 100)
     private String title;
 
-    //    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "image")
+    @Column(name = "image")
     private String image;
 
     @Column(name = "description", columnDefinition = "TEXT")
@@ -37,8 +38,7 @@ public class Ad {
     @Column(name = "current_bid_price", nullable = false)
     private BigDecimal currentBidPrice;
 
-    @Column
-    @JoinColumn(name = "author_id", nullable = false)
+    @Column(name = "author_id", nullable = false)
     private Long authorId;
 
     @OneToMany(fetch = FetchType.LAZY)
@@ -48,7 +48,18 @@ public class Ad {
     @Column(name = "location", length = 100)
     private String location;
 
-//    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "images")
+    //@OneToMany(fetch = FetchType.LAZY)
+    @Column(name = "images")
+    @Convert(converter = StringListConverter.class)
     private List<String> images;
+
+    @Column
+    private Boolean isActive;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    @Column
+    private LocalDate startingDate;
 }

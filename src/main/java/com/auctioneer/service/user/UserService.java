@@ -3,7 +3,6 @@ package com.auctioneer.service.user;
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.user.UserDto;
 import com.auctioneer.repository.user.UserRepository;
-import com.auctioneer.transformers.user.UserTransformer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -31,12 +30,14 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void edit(UserDto userDto) {
-        User user = new User();
+    public void edit(Long userId, UserDto userDto) {
+        User existingUser = userRepository.findById(userId).orElseThrow(
+                () -> new IllegalArgumentException("User with id " + userId + " not found")
+        );
 
-        BeanUtils.copyProperties(userDto, user);
+        BeanUtils.copyProperties(userDto, existingUser, "id");
 
-        userRepository.save(user);
+        userRepository.save(existingUser);
     }
 
     public void delete(Long userId) {

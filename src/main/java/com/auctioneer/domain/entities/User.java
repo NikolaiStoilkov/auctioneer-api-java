@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 import lombok.*;
-import org.springframework.security.core.userdetails.UserDetails;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -54,6 +54,7 @@ public class User {
     private String phoneNumber;
 
     @Column(name = "roles")
+    @Convert(converter = StringListConverter.class)
     private List<String> roles;
 
     @Email
@@ -65,4 +66,7 @@ public class User {
 
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
+
+    @Column
+    private BigDecimal balance;
 }

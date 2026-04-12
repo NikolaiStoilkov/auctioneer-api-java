@@ -15,13 +15,13 @@ import lombok.RequiredArgsConstructor;
 public class AuthenticationController {
     private final UserAuthService userAuthService;
 
-    @GetMapping("/sign-up")
-    private String signUp(@Valid @RequestBody UserAuthSignUpDto userAuthSignUpDto) {
+    @PostMapping("/sign-up")
+    public String signUp(@Valid @RequestBody UserAuthSignUpDto userAuthSignUpDto) {
         return userAuthService.signUp(userAuthSignUpDto);
     }
 
-    @GetMapping("/sign-in")
-    private String signIn(@Valid @RequestBody UserAuthSignInDto userAuthSignInDto) {
+    @PostMapping("/sign-in")
+    public String signIn(@Valid @RequestBody UserAuthSignInDto userAuthSignInDto) {
         return userAuthService.signIn(userAuthSignInDto);
     }
 }

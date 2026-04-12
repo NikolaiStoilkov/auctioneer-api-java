@@ -33,21 +33,28 @@ public class SecurityConfig {
 
                         // Ad endpoints
                         .requestMatchers("/api/ads/{id}").permitAll()
-                        .requestMatchers("/api/ads/my-ads").hasAuthority("USER")
-                        .requestMatchers("/api/ads/create").hasAuthority("USER")
-                        .requestMatchers("/api/ads/edit/{id}").hasAuthority("USER")
-                        .requestMatchers("/api/ads/bid/{id}").hasAuthority("USER")
+                        .requestMatchers("/api/ads/pagination").permitAll()
+                        .requestMatchers("/api/ads/my-ads").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/ads/create").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/ads/edit/{id}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/ads/bid/{id}").hasAnyAuthority("USER", "ADMIN")
 
                         // User endpoints
-                        .requestMatchers("/api/users/{id}").hasAuthority("USER")
-                        .requestMatchers("/api/users/save").hasAuthority("USER")
-                        .requestMatchers("/api/users/edit").hasAuthority("USER")
-                        .requestMatchers("/api/users/request/delete/{id}").hasAuthority("USER")
+                        .requestMatchers("/api/users/{id}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/users/save").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/users/edit").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/users/request/delete/{id}").hasAnyAuthority("USER")
 
                         // Shipping endpoints
-                        .requestMatchers("/api/shipping/{userId}").hasAuthority("USER")
-                        .requestMatchers("/api/shipping/save").hasAuthority("USER")
-                        .requestMatchers("/api/shipping/edit/{id}").hasAuthority("USER")
+                        .requestMatchers("/api/shipping/{userId}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/shipping/save").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/shipping/edit/{id}").hasAnyAuthority("USER", "ADMIN")
+
+                        // Comment endpoints
+                        .requestMatchers("/api/comments/{adId}").permitAll()
+                        .requestMatchers("/api/comments/create/{adId}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/comments/edit/{adId}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/comments/delete/{id}").hasAnyAuthority("USER", "ADMIN")
 
                         // All other endpoints require authentication
                         .anyRequest().authenticated()

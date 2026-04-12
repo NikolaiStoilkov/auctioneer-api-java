@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ShippingRepository extends JpaRepository<ShippingAddress, Long> {
-    ShippingAddress getById(Long userId);
 }

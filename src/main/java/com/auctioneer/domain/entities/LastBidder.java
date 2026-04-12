@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(
-        name = "USERS"
+        name = "LAST_BIDDERS"
 )
 public class LastBidder {
 
