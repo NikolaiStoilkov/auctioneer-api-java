@@ -33,13 +33,12 @@ public class UserAuthService {
             throw new IllegalArgumentException("Email already exists");
         }
 
-        userAuthSignUpDto.setPassword(passwordHash);
-
         Map<String, Object> claims = Map.of("ROLES", List.of("USER"));
 
         User user = new User();
 
         BeanUtils.copyProperties(userAuthSignUpDto, user);
+        user.setPasswordHash(passwordHash);
 
         Long userId = userRepository.save(user)
                 .getId();

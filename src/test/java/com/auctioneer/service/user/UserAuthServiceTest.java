@@ -92,24 +92,26 @@ class UserAuthServiceTest {
     }
 
     @Test
-    void signUpShouldReturnMessageWhenUsernameAlreadyExists() {
+    void signUpShouldThrowWhenUsernameAlreadyExists() {
         when(userRepository.existsUserByUsername("john_doe")).thenReturn(true);
 
-        String result = userAuthService.signUp(signUpDto);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userAuthService.signUp(signUpDto));
 
-        assertEquals("Username already exists", result);
+        assertEquals("Username already exists", ex.getMessage());
         verify(userRepository, never()).save(any(User.class));
         verify(authenticationService, never()).initialize(anyLong(), anyMap());
     }
 
     @Test
-    void signUpShouldReturnMessageWhenEmailAlreadyExists() {
+    void signUpShouldThrowWhenEmailAlreadyExists() {
         when(userRepository.existsUserByUsername("john_doe")).thenReturn(false);
         when(userRepository.existsUserByEmail("john@example.com")).thenReturn(true);
 
-        String result = userAuthService.signUp(signUpDto);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userAuthService.signUp(signUpDto));
 
-        assertEquals("Email already exists", result);
+        assertEquals("Email already exists", ex.getMessage());
         verify(userRepository, never()).save(any(User.class));
         verify(authenticationService, never()).initialize(anyLong(), anyMap());
     }
@@ -144,12 +146,13 @@ class UserAuthServiceTest {
     }
 
     @Test
-    void signInShouldReturnMessageWhenUserNotFound() {
+    void signInShouldThrowWhenUserNotFound() {
         when(userRepository.findUserByUsername("john_doe")).thenReturn(null);
 
-        String result = userAuthService.signIn(signInDto);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userAuthService.signIn(signInDto));
 
-        assertEquals("User not found", result);
+        assertEquals("User not found", ex.getMessage());
         verify(passwordEncoder, never()).matches(anyString(), anyString());
         verify(authenticationService, never()).authorize(anyLong(), anyBoolean(), anyMap());
     }

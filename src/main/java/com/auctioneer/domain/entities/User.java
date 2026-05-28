@@ -67,6 +67,14 @@ public class User {
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
-    @Column
-    private BigDecimal balance;
+    @Column(name = "stripe_customer_id", unique = true)
+    private String stripeCustomerId;
+
+    @Builder.Default
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal balance = BigDecimal.ZERO;
+
+    @Builder.Default
+    @Column(name = "credits", nullable = false, precision = 10, scale = 2)
+    private BigDecimal credits = BigDecimal.ZERO;
 }

@@ -93,7 +93,12 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-
+        <!-- Source: https://mvnrepository.com/artifact/com.stripe/stripe-java -->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>32.0.0</version>
+        </dependency>
 
         <!-- Source: https://mvnrepository.com/artifact/org.mockito/mockito-core -->
         <dependency>
@@ -102,7 +107,7 @@
             <version>5.22.0</version>
             <scope>test</scope>
         </dependency>
-        
+
         <!-- Source: https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

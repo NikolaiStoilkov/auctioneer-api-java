@@ -1,6 +1,7 @@
 package com.auctioneer.dtos.ad;
 
 import com.auctioneer.domain.entities.LastBidder;
+import com.auctioneer.domain.entities.Status;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -10,11 +11,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
 @Setter
 public class AdDto {
+    private Long id;
+
     @NotBlank(message = "Title is required")
     @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
     private String title;
@@ -44,4 +48,10 @@ public class AdDto {
     private String location;
 
     private List<String> images;
+
+    private Status status;
+
+    private Boolean isActive;
+
+    private LocalDate startingDate;
 }
