@@ -3,6 +3,7 @@ package com.auctioneer.service.stripe;
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.stripe.PaymentMethodResponseDto;
 import com.auctioneer.repository.user.UserRepository;
+import com.auctioneer.service.discordNotifications.DiscordService;
 import com.stripe.StripeClient;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
@@ -40,6 +41,7 @@ public class StripeService {
     private String defaultCountryCode;
 
     private final UserRepository userRepository;
+    private final DiscordService discordService;
 
     public String getPublishableKey() {
         return stripePublishable;
@@ -74,6 +76,7 @@ public class StripeService {
 
         SetupIntent intent = client.v1().setupIntents().create(params);
 
+        discordService.sendStripeNotification("🔧 Setup intent created for user " + userId);
         return intent.getClientSecret();
     }
 
@@ -110,6 +113,7 @@ public class StripeService {
 
         PaymentIntent intent = client.v1().paymentIntents().create(params);
 
+        discordService.sendStripeNotification("💳 Payment intent created for user " + userId + ": **" + amount + "**");
         return intent.getClientSecret();
     }
 

@@ -1,5 +1,6 @@
 package com.auctioneer.service.discordNotifications;
-import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -8,16 +9,31 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @Service
-@RequiredArgsConstructor
 public class DiscordService {
 
-    // Still working on it
-    private final String webhookUrl = "https://discord.com/api/webhooks/1497237200251654325/MwMWQGPpFIYdyVuu9ZBCy_1bzcrJPUOuRmcMUOfcp0r4TIHrmukKpUs76CM9-QAJkafQ";
+    @Value("${discord.webhook.ads:}")
+    private String adsWebhook;
 
-    public void sendNotification(String message) {
+    @Value("${discord.webhook.bids:}")
+    private String bidsWebhook;
+
+    @Value("${discord.webhook.comments:}")
+    private String commentsWebhook;
+
+    @Value("${discord.webhook.users:}")
+    private String usersWebhook;
+
+    @Value("${discord.webhook.wallet:}")
+    private String walletWebhook;
+
+    @Value("${discord.webhook.stripe:}")
+    private String stripeWebhook;
+
+    private void send(String webhookUrl, String message) {
+        if (webhookUrl == null || webhookUrl.isBlank()) return;
         try {
-            // Discord expects a JSON object with a "content" field
-            String jsonPayload = "{\"content\": \"" + message + "\"}";
+            String safe = message.replace("\\", "\\\\").replace("\"", "\\\"");
+            String jsonPayload = "{\"content\": \"" + safe + "\"}";
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -27,11 +43,17 @@ public class DiscordService {
                     .build();
 
             client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .thenAccept(response -> {
-                        System.out.println("Discord Response Code: " + response.statusCode());
-                    });
+                    .thenAccept(response ->
+                            System.out.println("Discord [" + webhookUrl + "] -> " + response.statusCode()));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    public void sendAdNotification(String message)      { send(adsWebhook, message); }
+    public void sendBidNotification(String message)     { send(bidsWebhook, message); }
+    public void sendCommentNotification(String message) { send(commentsWebhook, message); }
+    public void sendUserNotification(String message)    { send(usersWebhook, message); }
+    public void sendWalletNotification(String message)  { send(walletWebhook, message); }
+    public void sendStripeNotification(String message)  { send(stripeWebhook, message); }
 }

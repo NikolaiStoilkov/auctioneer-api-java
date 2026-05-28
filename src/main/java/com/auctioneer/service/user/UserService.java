@@ -3,6 +3,7 @@ package com.auctioneer.service.user;
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.user.UserDto;
 import com.auctioneer.repository.user.UserRepository;
+import com.auctioneer.service.discordNotifications.DiscordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final DiscordService discordService;
 
     public UserDto get(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
@@ -28,6 +30,7 @@ public class UserService {
         BeanUtils.copyProperties(userDto, user);
 
         userRepository.save(user);
+        discordService.sendUserNotification("👤 User created: **" + userDto.getUsername() + "**");
     }
 
     public void edit(Long userId, UserDto userDto) {
@@ -38,9 +41,11 @@ public class UserService {
         BeanUtils.copyProperties(userDto, existingUser, "id");
 
         userRepository.save(existingUser);
+        discordService.sendUserNotification("✏️ User " + existingUser.getFirstName() + " " + existingUser.getLastName()  + " profile updated");
     }
 
     public void delete(Long userId) {
         userRepository.deleteById(userId);
+        discordService.sendUserNotification("🗑️ User " + userId + " deleted");
     }
 }

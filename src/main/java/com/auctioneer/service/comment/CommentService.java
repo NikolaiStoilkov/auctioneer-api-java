@@ -5,6 +5,7 @@ import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.comment.CommentDto;
 import com.auctioneer.repository.comment.CommentRepository;
 import com.auctioneer.repository.user.UserRepository;
+import com.auctioneer.service.discordNotifications.DiscordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.List;
 public class CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final DiscordService discordService;
 
     public List<CommentDto> getAll(Long adId) {
         List<Comment> comments = commentRepository.findAllByAdId(adId);
@@ -45,6 +47,7 @@ public class CommentService {
         comment.setUpdatedAt(now);
 
         commentRepository.save(comment);
+        discordService.sendCommentNotification("💬 New comment on ad " + commentDto.getAdId() + " by user " + commentDto.getAuthorId());
     }
 
     public void edit(CommentDto commentDto) {
@@ -57,9 +60,11 @@ public class CommentService {
         comment.setUpdatedAt(LocalDateTime.now());
 
         commentRepository.save(comment);
+        discordService.sendCommentNotification("✏️ Comment " + commentDto.getId() + " edited on ad " + commentDto.getAdId());
     }
 
     public void delete(Long id) {
         commentRepository.deleteById(id);
+        discordService.sendCommentNotification("🗑️ Comment " + id + " deleted");
     }
 }

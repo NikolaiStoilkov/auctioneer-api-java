@@ -3,6 +3,7 @@ package com.auctioneer.service.user;
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.user.UserDto;
 import com.auctioneer.repository.user.UserRepository;
+import com.auctioneer.service.discordNotifications.DiscordService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,9 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private DiscordService discordService;
 
     @InjectMocks
     private UserService userService;

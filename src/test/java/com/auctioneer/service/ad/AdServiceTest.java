@@ -8,6 +8,9 @@ import com.auctioneer.dtos.ad.BidDto;
 import com.auctioneer.repository.ad.AdRepository;
 import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.service.ad.BidSseService;
+import com.auctioneer.service.discordNotifications.DiscordService;
+import com.auctioneer.service.user.UserSseService;
+import com.auctioneer.service.wallet.WalletService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +40,15 @@ class AdServiceTest {
 
     @Mock
     private BidSseService bidSseService;
+
+    @Mock
+    private UserSseService userSseService;
+
+    @Mock
+    private WalletService walletService;
+
+    @Mock
+    private DiscordService discordService;
 
     @InjectMocks
     private AdService adService;

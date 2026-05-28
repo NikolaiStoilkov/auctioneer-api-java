@@ -5,6 +5,7 @@ import com.auctioneer.dtos.forms.UserAuthSignInDto;
 import com.auctioneer.dtos.forms.UserAuthSignUpDto;
 import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.service.auth.AuthenticationService;
+import com.auctioneer.service.discordNotifications.DiscordService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import org.mockito.ArgumentCaptor;
 
 @ExtendWith(MockitoExtension.class)
 class UserAuthServiceTest {
@@ -32,6 +34,9 @@ class UserAuthServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private DiscordService discordService;
 
     @InjectMocks
     private UserAuthService userAuthService;
@@ -126,7 +131,9 @@ class UserAuthServiceTest {
 
         userAuthService.signUp(signUpDto);
 
-        assertEquals("encodedPassword", signUpDto.getPassword());
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertEquals("encodedPassword", captor.getValue().getPasswordHash());
     }
 
     // --- signIn tests ---

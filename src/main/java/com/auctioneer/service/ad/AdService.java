@@ -11,6 +11,7 @@ import com.auctioneer.dtos.ad.BidResponseDto;
 import com.auctioneer.dtos.user.UserNotificationDto;
 import com.auctioneer.repository.ad.AdRepository;
 import com.auctioneer.repository.user.UserRepository;
+import com.auctioneer.service.discordNotifications.DiscordService;
 import com.auctioneer.service.user.UserSseService;
 import com.auctioneer.service.wallet.WalletService;
 
@@ -41,6 +42,7 @@ public class AdService {
     private final BidSseService bidSseService;
     private final UserSseService userSseService;
     private final WalletService walletService;
+    private final DiscordService discordService;
 
     public AdDto get(Long adId) {
         Ad ad = adRepository.findById(adId).orElseThrow();
@@ -73,6 +75,7 @@ public class AdService {
         }
 
         adRepository.save(ad);
+        discordService.sendAdNotification("🆕 New ad created: **" + ad.getTitle() + "** by user " + userId);
     }
 
     public List<AdDto> getMyAds(Long authorId) {
@@ -95,6 +98,7 @@ public class AdService {
         BeanUtils.copyProperties(adDto, existingAd, "id");
 
         adRepository.save(existingAd);
+        discordService.sendAdNotification("✏️ Ad edited (ID: " + adId + "): **" + existingAd.getTitle() + "**");
     }
 
     /**
@@ -179,6 +183,7 @@ public class AdService {
                 .build();
 
         bidSseService.broadcast(adId, response);
+        discordService.sendBidNotification("💰 New bid on **" + ad.getTitle() + "** (ID: " + adId + "): **" + bidAmount + "** by " + bidder.getUsername());
         return response;
     }
 
@@ -188,6 +193,7 @@ public class AdService {
         ads.forEach(ad -> ad.setStatus(Status.ACTIVE));
 
         adRepository.saveAll(ads);
+        discordService.sendAdNotification("🔄 Scheduled status update ran — " + ads.size() + " ads reactivated");
     }
 
     public List<AdDto> pagination(AdFilterDto filter) {

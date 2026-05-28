@@ -3,6 +3,7 @@ package com.auctioneer.service.user;
 import com.auctioneer.domain.entities.ShippingAddress;
 import com.auctioneer.dtos.shippingAddress.ShippingAddressDto;
 import com.auctioneer.repository.user.ShippingRepository;
+import com.auctioneer.service.discordNotifications.DiscordService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,9 @@ class ShippingServiceTest {
 
     @Mock
     private ShippingRepository shippingRepository;
+
+    @Mock
+    private DiscordService discordService;
 
     @InjectMocks
     private ShippingService shippingService;

@@ -3,6 +3,7 @@ package com.auctioneer.service.user;
 import com.auctioneer.domain.entities.ShippingAddress;
 import com.auctioneer.dtos.shippingAddress.ShippingAddressDto;
 import com.auctioneer.repository.user.ShippingRepository;
+import com.auctioneer.service.discordNotifications.DiscordService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ShippingService {
     private final ShippingRepository shippingRepository;
+    private final DiscordService discordService;
 
     public ShippingAddressDto get(Long userId) {
         ShippingAddress shippingAddress = shippingRepository.findById(userId)
@@ -30,6 +32,7 @@ public class ShippingService {
         BeanUtils.copyProperties(shippingAddressDto, shippingAddress);
 
         shippingRepository.save(shippingAddress);
+        discordService.sendUserNotification("📦 Shipping address saved for " + shippingAddressDto.getFirstName() + " " + shippingAddressDto.getLastName());
     }
 
     public void edit(ShippingAddressDto shippingAddressDto, Long id) {
@@ -39,5 +42,6 @@ public class ShippingService {
         BeanUtils.copyProperties(shippingAddressDto, existingShippingAddress, "id"); //
 
         shippingRepository.save(existingShippingAddress);
+        discordService.sendUserNotification("✏️ Shipping address updated (ID: " + id + ") for " + shippingAddressDto.getFirstName() + " " + shippingAddressDto.getLastName());
     }
 }

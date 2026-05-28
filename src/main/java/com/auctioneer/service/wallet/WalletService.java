@@ -6,6 +6,7 @@ import com.auctioneer.dtos.wallet.BalanceDto;
 import com.auctioneer.dtos.wallet.CreditTransactionDto;
 import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.repository.wallet.CreditTransactionRepository;
+import com.auctioneer.service.discordNotifications.DiscordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,7 @@ public class WalletService {
 
     private final UserRepository userRepository;
     private final CreditTransactionRepository creditTransactionRepository;
+    private final DiscordService discordService;
 
     public BalanceDto getBalance(Long userId) {
         User user = userRepository.findById(userId)
@@ -51,6 +53,7 @@ public class WalletService {
                         .build()
         );
 
+        discordService.sendWalletNotification("💳 User " + userId + " added **" + amount + "** credits");
         return new BalanceDto(user.getBalance(), user.getCredits());
     }
 
@@ -64,15 +67,15 @@ public class WalletService {
         }
 
         user.setBalance(user.getBalance().subtract(amount));
-
         user.setCredits(user.getCredits().subtract(amount));
-
         userRepository.save(user);
 
         creditTransactionRepository.save(CreditTransaction.builder()
                 .userId(userId).amount(amount)
                 .type(CreditTransaction.TransactionType.DEBIT)
                 .description(description).build());
+
+        discordService.sendWalletNotification("💸 User " + userId + " debited **" + amount + "** — " + description);
     }
 
     @Transactional
@@ -81,15 +84,15 @@ public class WalletService {
                 .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
 
         user.setBalance(user.getBalance().add(amount));
-
         user.setCredits(user.getCredits().add(amount));
-
         userRepository.save(user);
 
         creditTransactionRepository.save(CreditTransaction.builder()
                 .userId(userId).amount(amount)
                 .type(CreditTransaction.TransactionType.REFUND)
                 .description(description).build());
+
+        discordService.sendWalletNotification("♻️ User " + userId + " refunded **" + amount + "** — " + description);
     }
 
     public Page<CreditTransactionDto> getTransactions(Long userId, int page, int size) {
