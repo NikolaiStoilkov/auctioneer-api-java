@@ -22,7 +22,7 @@ public class Ad {
     @Column(name = "title", nullable = false, length = 100)
     private String title;
 
-    @Column(name = "image")
+    @Column(name = "image", columnDefinition = "TEXT")
     private String image;
 
     @Column(name = "description", columnDefinition = "TEXT")
@@ -51,7 +51,7 @@ public class Ad {
     @Column(name = "location", length = 100)
     private String location;
 
-    @Column(name = "images")
+    @Column(name = "images", columnDefinition = "TEXT")
     @Convert(converter = StringListConverter.class)
     private List<String> images;
 

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Email;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Entity
 @Setter
@@ -35,5 +35,5 @@ public class LastBidder {
     private BigDecimal amount;
 
     @Column(name = "bid_timestamp")
-    private Instant timestamp;
+    private OffsetDateTime timestamp;
 }

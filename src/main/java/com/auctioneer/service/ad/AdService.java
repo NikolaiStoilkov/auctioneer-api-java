@@ -29,6 +29,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,7 +114,10 @@ public class AdService {
         User bidder = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // If caller omits amount, auto-advance by one bid step.
+        if (ad.getAuthorId() != null && ad.getAuthorId().equals(userId)) {
+            throw new IllegalArgumentException("You cannot bid on your own ad");
+        }
+
         BigDecimal bidAmount = (bidDto.getAmount() != null)
                 ? bidDto.getAmount()
                 : ad.getCurrentBidPrice().add(ad.getBidStep());
@@ -140,7 +145,7 @@ public class AdService {
         record.setUsername(bidder.getUsername());
         record.setEmail(bidder.getEmail());
         record.setAmount(bidAmount);
-        record.setTimestamp(Instant.now());
+        record.setTimestamp(OffsetDateTime.now(ZoneOffset.UTC));
         ad.getLastBidders().add(record);
 
         String nowStr = Instant.now().toString();
@@ -179,6 +184,7 @@ public class AdService {
                 .currentBidPrice(bidAmount)
                 .nextMinimumBid(bidAmount.add(ad.getBidStep()))
                 .latestBidderUsername(bidder.getUsername())
+                .latestBidderUserId(userId)
                 .timestamp(Instant.now())
                 .build();
 

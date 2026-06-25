@@ -19,6 +19,7 @@ public class BidResponseDto {
     private BigDecimal currentBidPrice;
     private BigDecimal nextMinimumBid;
     private String latestBidderUsername;
+    private Long latestBidderUserId;
     @Builder.Default
     private Instant timestamp = Instant.now();
 }
