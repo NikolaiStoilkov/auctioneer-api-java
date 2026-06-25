@@ -30,48 +30,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
-        String token = null;
-        String userId = null;
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-            userId = jwtService.extractUserId(token);
-        } else {
-            response.setStatus(403);
-            return;
-        }
+            try {
+                String token = authHeader.substring(7);
+                String userId = jwtService.extractUserId(token);
 
-        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null
-                && !jwtService.isTokenExpired(token)) {
-            UserPrincipal principal = UserPrincipal.builder()
-                    .id(Long.valueOf(userId))
-                    .build();
+                if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null
+                        && !jwtService.isTokenExpired(token)) {
+                    UserPrincipal principal = UserPrincipal.builder()
+                            .id(Long.valueOf(userId))
+                            .build();
 
-            Claims claims = jwtService.extractAllClaims(token);
+                    Claims claims = jwtService.extractAllClaims(token);
 
+                    List<SimpleGrantedAuthority> roles = claims.get("ROLES", List.class)
+                            .stream()
+                            .map(r -> new SimpleGrantedAuthority(r.toString()))
+                            .toList();
 
-            /*
-            Unchecked assignment: 'java.util.List' to 'java.util.List<org.springframework.security.core.authority.SimpleGrantedAuthority>'.
-             Reason: 'claims.get("ROLES", List.class)
-                .stream()
-                .map(r -> new SimpleGrantedAuthority(r.toString()))' has raw type, so result of toList is erased
-             */
-            List<SimpleGrantedAuthority> roles = claims.get("ROLES", List.class)
-                    .stream()
-                    .map(r -> new SimpleGrantedAuthority(r.toString()))
-                    .toList();
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            principal,
+                            null,
+                            roles);
 
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    principal,
-                    null,
-                    roles);
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-        } else {
-            response.setStatus(403);
-            return;
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            } catch (Exception ex) {
+                SecurityContextHolder.clearContext();
+            }
         }
 
         filterChain.doFilter(request, response);
