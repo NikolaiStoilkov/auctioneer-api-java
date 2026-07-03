@@ -10,15 +10,10 @@ import com.stripe.model.Customer;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.PaymentMethod;
 import com.stripe.model.SetupIntent;
-import com.stripe.model.v2.core.Account;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.PaymentIntentCreateParams;
-import com.stripe.param.PaymentMethodAttachParams;
-import com.stripe.param.PaymentMethodCreateParams;
 import com.stripe.param.PaymentMethodListParams;
 import com.stripe.param.SetupIntentCreateParams;
-import com.stripe.param.checkout.SessionCreateParams;
-import com.stripe.param.v2.core.AccountCreateParams;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -141,109 +136,20 @@ public class StripeService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
 
-        StripeClient client = new StripeClient(stripeSecret);
-
         String email       = user.getEmail();
         String displayName = user.getFirstName() + " " + user.getLastName();
         String countryCode = resolveCountryCode(user.getCountry());
         String currencyCode = "eur";
 
-        AccountCreateParams params =
-                AccountCreateParams.builder()
-                        .setContactEmail(email)
-                        .setDisplayName(displayName)
-                        .setIdentity(
-                                AccountCreateParams.Identity.builder()
-                                        .setCountry(countryCode)
-                                        .build()
-                        )
-                        .setConfiguration(
-                                AccountCreateParams.Configuration.builder()
-                                        .setCustomer(
-                                                AccountCreateParams.Configuration.Customer.builder()
-                                                        .setCapabilities(
-                                                                AccountCreateParams.Configuration.Customer.Capabilities.builder()
-                                                                        .setAutomaticIndirectTax(
-                                                                                AccountCreateParams.Configuration.Customer.Capabilities.AutomaticIndirectTax.builder()
-                                                                                        .setRequested(true)
-                                                                                        .build()
-                                                                        )
-                                                                        .build()
-                                                        )
-                                                        .build()
-                                        )
-                                        .setMerchant(
-                                                AccountCreateParams.Configuration.Merchant.builder()
-                                                        .setCapabilities(
-                                                                AccountCreateParams.Configuration.Merchant.Capabilities.builder()
-                                                                        .setCardPayments(
-                                                                                AccountCreateParams.Configuration.Merchant.Capabilities.CardPayments.builder()
-                                                                                        .setRequested(true)
-                                                                                        .build()
-                                                                        )
-                                                                        .build()
-                                                        )
-                                                        .build()
-                                        )
-                                        .build()
-                        )
-                        .setDefaults(
-                                AccountCreateParams.Defaults.builder()
-                                        .setResponsibilities(
-                                                AccountCreateParams.Defaults.Responsibilities.builder()
-                                                        .setFeesCollector(
-                                                                AccountCreateParams.Defaults.Responsibilities.FeesCollector.STRIPE
-                                                        )
-                                                        .setLossesCollector(
-                                                                AccountCreateParams.Defaults.Responsibilities.LossesCollector.STRIPE
-                                                        )
-                                                        .build()
-                                        )
-                                        .build()
-                        )
-                        .setDashboard(AccountCreateParams.Dashboard.FULL)
-                        .addInclude(AccountCreateParams.Include.CONFIGURATION__MERCHANT)
-                        .addInclude(AccountCreateParams.Include.CONFIGURATION__CUSTOMER)
-                        .addInclude(AccountCreateParams.Include.IDENTITY)
-                        .addInclude(AccountCreateParams.Include.DEFAULTS)
-                        .build();
+        StripePaymentMethod paymentMethod = new StripePaymentMethod(
+                email,
+                displayName,
+                countryCode,
+                currencyCode,
+                stripeSecret
+        );
 
-        Account account = client.v2().core().accounts().create(params);
-        String customerAccountId = account.getId();
-
-        SessionCreateParams sessionCreateParams =
-                SessionCreateParams.builder()
-                        .setMode(SessionCreateParams.Mode.SETUP)
-                        .setUiMode(SessionCreateParams.UiMode.ELEMENTS)
-                        .setCurrency(currencyCode)
-                        .build();
-
-        client.v1().checkout().sessions().create(sessionCreateParams);
-
-        PaymentMethodCreateParams paymentMethodCreateParams =
-                PaymentMethodCreateParams.builder()
-                        .setType(PaymentMethodCreateParams.Type.SEPA_DEBIT)
-                        .setSepaDebit(
-                                PaymentMethodCreateParams.SepaDebit.builder()
-                                        .setIban("AT611904300234573201")
-                                        .build()
-                        )
-                        .setBillingDetails(
-                                PaymentMethodCreateParams.BillingDetails.builder()
-                                        .setName(displayName)
-                                        .setEmail(email)
-                                        .build()
-                        )
-                        .build();
-
-        PaymentMethod paymentMethod = client.v1().paymentMethods().create(paymentMethodCreateParams);
-
-        PaymentMethodAttachParams paymentMethodAttachParams =
-                PaymentMethodAttachParams.builder()
-                        .setCustomerAccount(customerAccountId)
-                        .build();
-
-        return client.v1().paymentMethods().attach(paymentMethod.getId(), paymentMethodAttachParams);
+        return paymentMethod.create();
     }
 
     private String resolveCountryCode(String country) {
