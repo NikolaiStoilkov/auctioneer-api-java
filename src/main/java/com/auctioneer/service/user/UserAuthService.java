@@ -44,7 +44,9 @@ public class UserAuthService {
 
         Long userId = userRepository.save(user).getId();
 
-        discordService.sendUserNotification("👤 New user registered: **" + userAuthSignUpDto.getUsername() + "**");
+        String message = String.format("👤 New user registered: **%s**", userAuthSignUpDto.getUsername());
+
+        discordService.sendUserNotification(message);
 
         return authenticationService.initialize(userId, claims);
     }
@@ -66,7 +68,9 @@ public class UserAuthService {
 
         Map<String, Object> claims = Map.of("ROLES", user.getRoles());
 
-        discordService.sendUserNotification("🔑 User signed in: **" + username + "**");
+        String message = String.format("🔑 User signed in: **%s**", username);
+
+        discordService.sendUserNotification(message);
 
         return authenticationService.authorize(userId, isPasswordMatched, claims);
     }

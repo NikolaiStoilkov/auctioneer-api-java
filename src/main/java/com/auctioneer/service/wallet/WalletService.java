@@ -53,7 +53,9 @@ public class WalletService {
                         .build()
         );
 
-        discordService.sendWalletNotification("💳 User " + userId + " added **" + amount + "** credits");
+        String message = String.format("💳 User %d added **%s** credits", userId, amount);
+
+        discordService.sendWalletNotification(message);
         return new BalanceDto(user.getBalance(), user.getCredits());
     }
 
@@ -75,7 +77,9 @@ public class WalletService {
                 .type(CreditTransaction.TransactionType.DEBIT)
                 .description(description).build());
 
-        discordService.sendWalletNotification("💸 User " + userId + " debited **" + amount + "** — " + description);
+        String message = String.format("💸 User %d debited **%s** — %s", userId, amount, description);
+
+        discordService.sendWalletNotification(message);
     }
 
     @Transactional
@@ -92,7 +96,9 @@ public class WalletService {
                 .type(CreditTransaction.TransactionType.REFUND)
                 .description(description).build());
 
-        discordService.sendWalletNotification("♻️ User " + userId + " refunded **" + amount + "** — " + description);
+        String message = String.format("♻️ User %d refunded **%s** — %s", userId, amount, description);
+
+        discordService.sendWalletNotification(message);
     }
 
     public Page<CreditTransactionDto> getTransactions(Long userId, int page, int size) {

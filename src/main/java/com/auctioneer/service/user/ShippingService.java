@@ -32,7 +32,9 @@ public class ShippingService {
         BeanUtils.copyProperties(shippingAddressDto, shippingAddress);
 
         shippingRepository.save(shippingAddress);
-        discordService.sendUserNotification("📦 Shipping address saved for " + shippingAddressDto.getFirstName() + " " + shippingAddressDto.getLastName());
+        String message = String.format("📦 Shipping address saved for %s %s", shippingAddressDto.getFirstName(), shippingAddressDto.getLastName());
+
+        discordService.sendUserNotification(message);
     }
 
     public void edit(ShippingAddressDto shippingAddressDto, Long id) {
@@ -42,6 +44,8 @@ public class ShippingService {
         BeanUtils.copyProperties(shippingAddressDto, existingShippingAddress, "id"); //
 
         shippingRepository.save(existingShippingAddress);
-        discordService.sendUserNotification("✏️ Shipping address updated (ID: " + id + ") for " + shippingAddressDto.getFirstName() + " " + shippingAddressDto.getLastName());
+        String message = String.format("✏️ Shipping address updated (ID: %d) for %s %s", id, shippingAddressDto.getFirstName(), shippingAddressDto.getLastName());
+
+        discordService.sendUserNotification(message);
     }
 }

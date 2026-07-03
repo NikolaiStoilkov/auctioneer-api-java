@@ -47,7 +47,9 @@ public class CommentService {
         comment.setUpdatedAt(now);
 
         commentRepository.save(comment);
-        discordService.sendCommentNotification("💬 New comment on ad " + commentDto.getAdId() + " by user " + commentDto.getAuthorId());
+        String message = String.format("💬 New comment on ad %d by user %d", commentDto.getAdId(), commentDto.getAuthorId());
+
+        discordService.sendCommentNotification(message);
     }
 
     public void edit(CommentDto commentDto) {
@@ -60,11 +62,15 @@ public class CommentService {
         comment.setUpdatedAt(LocalDateTime.now());
 
         commentRepository.save(comment);
-        discordService.sendCommentNotification("✏️ Comment " + commentDto.getId() + " edited on ad " + commentDto.getAdId());
+        String message = String.format("✏️ Comment %d edited on ad %d", commentDto.getId(), commentDto.getAdId());
+
+        discordService.sendCommentNotification(message);
     }
 
     public void delete(Long id) {
         commentRepository.deleteById(id);
-        discordService.sendCommentNotification("🗑️ Comment " + id + " deleted");
+        String message = String.format("🗑️ Comment %d deleted", id);
+
+        discordService.sendCommentNotification(message);
     }
 }

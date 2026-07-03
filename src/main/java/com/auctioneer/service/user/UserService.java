@@ -30,7 +30,9 @@ public class UserService {
         BeanUtils.copyProperties(userDto, user);
 
         userRepository.save(user);
-        discordService.sendUserNotification("👤 User created: **" + userDto.getUsername() + "**");
+        String message = String.format("👤 User created: **%s**", userDto.getUsername());
+
+        discordService.sendUserNotification(message);
     }
 
     public void edit(Long userId, UserDto userDto) {
@@ -41,11 +43,15 @@ public class UserService {
         BeanUtils.copyProperties(userDto, existingUser, "id");
 
         userRepository.save(existingUser);
-        discordService.sendUserNotification("✏️ User " + existingUser.getFirstName() + " " + existingUser.getLastName()  + " profile updated");
+        String message = String.format("✏️ User %s %s profile updated", existingUser.getFirstName(), existingUser.getLastName());
+
+        discordService.sendUserNotification(message);
     }
 
     public void delete(Long userId) {
         userRepository.deleteById(userId);
-        discordService.sendUserNotification("🗑️ User " + userId + " deleted");
+        String message = String.format("🗑️ User %d deleted", userId);
+
+        discordService.sendUserNotification(message);
     }
 }

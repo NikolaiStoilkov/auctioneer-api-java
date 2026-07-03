@@ -77,7 +77,11 @@ public class AdService {
         }
 
         adRepository.save(ad);
-        discordService.sendAdNotification("🆕 New ad created: **" + ad.getTitle() + "** by user " + userId);
+
+        String message = String.format("🆕 New ad created: **%s** by user %d", ad.getTitle(), userId);
+
+        discordService.sendAdNotification(message);
+
     }
 
     public List<AdDto> getMyAds(Long authorId) {
@@ -100,7 +104,9 @@ public class AdService {
         BeanUtils.copyProperties(adDto, existingAd, "id");
 
         adRepository.save(existingAd);
-        discordService.sendAdNotification("✏️ Ad edited (ID: " + adId + "): **" + existingAd.getTitle() + "**");
+        String message = String.format("✏️ Ad edited (ID: %d): **%s**", adId, existingAd.getTitle());
+
+        discordService.sendAdNotification(message);
     }
 
     /**
@@ -189,7 +195,9 @@ public class AdService {
                 .build();
 
         bidSseService.broadcast(adId, response);
-        discordService.sendBidNotification("💰 New bid on **" + ad.getTitle() + "** (ID: " + adId + "): **" + bidAmount + "** by " + bidder.getUsername());
+        String message = String.format("💰 New bid on **%s** (ID: %d): **%s** by %s", ad.getTitle(), adId, bidAmount, bidder.getUsername());
+
+        discordService.sendBidNotification(message);
         return response;
     }
 
@@ -199,7 +207,9 @@ public class AdService {
         ads.forEach(ad -> ad.setStatus(Status.ACTIVE));
 
         adRepository.saveAll(ads);
-        discordService.sendAdNotification("🔄 Scheduled status update ran — " + ads.size() + " ads reactivated");
+        String message = String.format("🔄 Scheduled status update ran — %d ads reactivated", ads.size());
+
+        discordService.sendAdNotification(message);
     }
 
     public List<AdDto> pagination(AdFilterDto filter) {

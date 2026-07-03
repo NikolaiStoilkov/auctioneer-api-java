@@ -71,7 +71,9 @@ public class StripeService {
 
         SetupIntent intent = client.v1().setupIntents().create(params);
 
-        discordService.sendStripeNotification("🔧 Setup intent created for user " + userId);
+        String message = String.format("🔧 Setup intent created for user %d", userId);
+
+        discordService.sendStripeNotification(message);
         return intent.getClientSecret();
     }
 
@@ -108,7 +110,9 @@ public class StripeService {
 
         PaymentIntent intent = client.v1().paymentIntents().create(params);
 
-        discordService.sendStripeNotification("💳 Payment intent created for user " + userId + ": **" + amount + "**");
+        String message = String.format("💳 Payment intent created for user %d: **%s**", userId, amount);
+
+        discordService.sendStripeNotification(message);
         return intent.getClientSecret();
     }
 
