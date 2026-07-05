@@ -5,6 +5,7 @@ import com.auctioneer.dtos.forms.UserAuthSignInDto;
 import com.auctioneer.dtos.forms.UserAuthSignUpDto;
 import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.service.auth.AuthenticationService;
+import com.auctioneer.service.discordNotifications.DiscordService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import org.mockito.ArgumentCaptor;
 
 @ExtendWith(MockitoExtension.class)
 class UserAuthServiceTest {
@@ -32,6 +34,9 @@ class UserAuthServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private DiscordService discordService;
 
     @InjectMocks
     private UserAuthService userAuthService;
@@ -92,24 +97,26 @@ class UserAuthServiceTest {
     }
 
     @Test
-    void signUpShouldReturnMessageWhenUsernameAlreadyExists() {
+    void signUpShouldThrowWhenUsernameAlreadyExists() {
         when(userRepository.existsUserByUsername("john_doe")).thenReturn(true);
 
-        String result = userAuthService.signUp(signUpDto);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userAuthService.signUp(signUpDto));
 
-        assertEquals("Username already exists", result);
+        assertEquals("Username already exists", ex.getMessage());
         verify(userRepository, never()).save(any(User.class));
         verify(authenticationService, never()).initialize(anyLong(), anyMap());
     }
 
     @Test
-    void signUpShouldReturnMessageWhenEmailAlreadyExists() {
+    void signUpShouldThrowWhenEmailAlreadyExists() {
         when(userRepository.existsUserByUsername("john_doe")).thenReturn(false);
         when(userRepository.existsUserByEmail("john@example.com")).thenReturn(true);
 
-        String result = userAuthService.signUp(signUpDto);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userAuthService.signUp(signUpDto));
 
-        assertEquals("Email already exists", result);
+        assertEquals("Email already exists", ex.getMessage());
         verify(userRepository, never()).save(any(User.class));
         verify(authenticationService, never()).initialize(anyLong(), anyMap());
     }
@@ -124,7 +131,9 @@ class UserAuthServiceTest {
 
         userAuthService.signUp(signUpDto);
 
-        assertEquals("encodedPassword", signUpDto.getPassword());
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertEquals("encodedPassword", captor.getValue().getPasswordHash());
     }
 
     // --- signIn tests ---
@@ -144,12 +153,13 @@ class UserAuthServiceTest {
     }
 
     @Test
-    void signInShouldReturnMessageWhenUserNotFound() {
+    void signInShouldThrowWhenUserNotFound() {
         when(userRepository.findUserByUsername("john_doe")).thenReturn(null);
 
-        String result = userAuthService.signIn(signInDto);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userAuthService.signIn(signInDto));
 
-        assertEquals("User not found", result);
+        assertEquals("User not found", ex.getMessage());
         verify(passwordEncoder, never()).matches(anyString(), anyString());
         verify(authenticationService, never()).authorize(anyLong(), anyBoolean(), anyMap());
     }

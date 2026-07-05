@@ -7,14 +7,13 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
 @Getter
 @Entity
-@Table(
-        name = "ADS"
-)
+@Table(name = "ADS")
 public class Ad {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +22,7 @@ public class Ad {
     @Column(name = "title", nullable = false, length = 100)
     private String title;
 
-    @Column(name = "image")
+    @Column(name = "image", columnDefinition = "TEXT")
     private String image;
 
     @Column(name = "description", columnDefinition = "TEXT")
@@ -41,15 +40,18 @@ public class Ad {
     @Column(name = "author_id", nullable = false)
     private Long authorId;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "last_bidder")
-    private List<LastBidder> lastBidders;
+    /** Tracks the current highest bidder so they can be refunded when outbid. */
+    @Column(name = "latest_bidder_user_id")
+    private Long latestBidderUserId;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "ad_id")
+    private List<LastBidder> lastBidders = new ArrayList<>();
 
     @Column(name = "location", length = 100)
     private String location;
 
-    //@OneToMany(fetch = FetchType.LAZY)
-    @Column(name = "images")
+    @Column(name = "images", columnDefinition = "TEXT")
     @Convert(converter = StringListConverter.class)
     private List<String> images;
 
@@ -62,4 +64,7 @@ public class Ad {
 
     @Column
     private LocalDate startingDate;
+
+    @Column
+    private BigDecimal balance;
 }

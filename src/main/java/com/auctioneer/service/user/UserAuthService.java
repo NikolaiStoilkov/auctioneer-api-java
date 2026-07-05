@@ -5,6 +5,7 @@ import com.auctioneer.dtos.forms.UserAuthSignInDto;
 import com.auctioneer.dtos.forms.UserAuthSignUpDto;
 import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.service.auth.AuthenticationService;
+import com.auctioneer.service.discordNotifications.DiscordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +21,7 @@ public class UserAuthService {
     private final AuthenticationService authenticationService;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final DiscordService discordService;
 
     public String signUp(UserAuthSignUpDto userAuthSignUpDto) {
         String password = userAuthSignUpDto.getPassword();
@@ -33,21 +35,18 @@ public class UserAuthService {
             throw new IllegalArgumentException("Email already exists");
         }
 
-        userAuthSignUpDto.setPassword(passwordHash);
-
         Map<String, Object> claims = Map.of("ROLES", List.of("USER"));
 
         User user = new User();
 
         BeanUtils.copyProperties(userAuthSignUpDto, user);
+        user.setPasswordHash(passwordHash);
 
-        Long userId = userRepository.save(user)
-                .getId();
+        Long userId = userRepository.save(user).getId();
 
-        return authenticationService.initialize(
-                userId,
-                claims
-        );
+        discordService.sendUserNotification("👤 New user registered: **" + userAuthSignUpDto.getUsername() + "**");
+
+        return authenticationService.initialize(userId, claims);
     }
 
     public String signIn(UserAuthSignInDto userAuthSignInDto) {
@@ -67,10 +66,8 @@ public class UserAuthService {
 
         Map<String, Object> claims = Map.of("ROLES", user.getRoles());
 
-        return authenticationService.authorize(
-                userId,
-                isPasswordMatched,
-                claims
-        );
+        discordService.sendUserNotification("🔑 User signed in: **" + username + "**");
+
+        return authenticationService.authorize(userId, isPasswordMatched, claims);
     }
 }
