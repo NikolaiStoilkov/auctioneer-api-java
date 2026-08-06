@@ -54,4 +54,6 @@ public class AdDto {
     private Boolean isActive;
 
     private LocalDate startingDate;
+
+    private LocalDate endDate;
 }

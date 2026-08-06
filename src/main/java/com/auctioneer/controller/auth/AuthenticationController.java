@@ -15,11 +15,23 @@ import lombok.RequiredArgsConstructor;
 public class AuthenticationController {
     private final UserAuthService userAuthService;
 
+    /**
+     * Registers a new user account.
+     *
+     * @param userAuthSignUpDto the sign-up credentials
+     * @return a JWT for the newly created user
+     */
     @PostMapping("/sign-up")
     public String signUp(@Valid @RequestBody UserAuthSignUpDto userAuthSignUpDto) {
         return userAuthService.signUp(userAuthSignUpDto);
     }
 
+    /**
+     * Authenticates an existing user.
+     *
+     * @param userAuthSignInDto the sign-in credentials
+     * @return a JWT for the authenticated user
+     */
     @PostMapping("/sign-in")
     public String signIn(@Valid @RequestBody UserAuthSignInDto userAuthSignInDto) {
         return userAuthService.signIn(userAuthSignInDto);

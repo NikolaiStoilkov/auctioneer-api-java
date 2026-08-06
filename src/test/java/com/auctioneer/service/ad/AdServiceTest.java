@@ -66,7 +66,8 @@ class AdServiceTest {
         sampleAd.setBidStep(new BigDecimal("10.00"));
         sampleAd.setStartingBidPrice(new BigDecimal("100.00"));
         sampleAd.setCurrentBidPrice(new BigDecimal("100.00"));
-        sampleAd.setAuthorId(1L);
+        // Author must differ from the bidding user (id 1) — bidding on your own ad is rejected
+        sampleAd.setAuthorId(2L);
         sampleAd.setLocation("Sofia");
         sampleAd.setLastBidders(new ArrayList<>());
 

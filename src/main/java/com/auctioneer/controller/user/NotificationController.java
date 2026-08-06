@@ -20,6 +20,9 @@ public class NotificationController {
     /**
      * SSE stream for per-user notifications.
      * Token is passed as a query parameter because EventSource cannot send headers.
+     *
+     * @param token the user's JWT
+     * @return an emitter that pushes notification events for the user
      */
     @GetMapping(value = "/notifications/stream", produces = "text/event-stream")
     public SseEmitter stream(@RequestParam("token") String token) {

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +18,8 @@ public interface AdRepository extends JpaRepository<Ad, Long> {
     List<Ad> findAdByAuthorId(Long authorId);
 
     List<Ad> findAdByStatus(Status status);
+
+    List<Ad> findAdByIsActiveTrueAndEndDateBefore(LocalDate date);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM Ad a WHERE a.id = :id")

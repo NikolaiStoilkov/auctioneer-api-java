@@ -64,15 +64,18 @@ public class SecurityConfig {
 //                        // WebSocket handshake
 //                        .requestMatchers("/ws/**").permitAll()
 
-                        // Ad endpoints
-                        .requestMatchers("/api/ads/{id}").permitAll()
-                        .requestMatchers("/api/ads/{id}/stream").permitAll()
-                        .requestMatchers("/api/ads/stream").permitAll()
-                        .requestMatchers("/api/ads/pagination").permitAll()
+                        // Ad endpoints — specific paths must come before the "/api/ads/{id}"
+                        // wildcard, otherwise {id} matches "create"/"my-ads" and makes them public
                         .requestMatchers("/api/ads/my-ads").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/api/ads/create").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/api/ads/edit/{id}").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/api/ads/bid/{id}").hasAnyAuthority("USER", "ADMIN")
+                        // Pub/sub push endpoint (Cloud Scheduler cannot send a user JWT)
+                        .requestMatchers(HttpMethod.POST, "/api/ads/close-expired").permitAll()
+                        .requestMatchers("/api/ads/{id}").permitAll()
+                        .requestMatchers("/api/ads/{id}/stream").permitAll()
+                        .requestMatchers("/api/ads/stream").permitAll()
+                        .requestMatchers("/api/ads/pagination").permitAll()
 
                         // User endpoints
                         .requestMatchers("/api/users/notifications/stream").permitAll()

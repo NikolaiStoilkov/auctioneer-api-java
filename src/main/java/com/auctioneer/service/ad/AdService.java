@@ -37,7 +37,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AdService {
-
     private final AdRepository adRepository;
     private final UserRepository userRepository;
     private final EntityManager entityManager;
@@ -97,7 +96,9 @@ public class AdService {
         Ad existingAd = adRepository.findById(adId)
                 .orElseThrow(() -> new IllegalArgumentException("Ad not found: " + adId));
 
-        BeanUtils.copyProperties(adDto, existingAd, "id");
+        // authorId must not be reassigned from the client, and lastBidders is an
+        // orphan-removal collection Hibernate does not allow to be replaced
+        BeanUtils.copyProperties(adDto, existingAd, "id", "authorId", "lastBidders");
 
         adRepository.save(existingAd);
         discordService.sendAdNotification("✏️ Ad edited (ID: " + adId + "): **" + existingAd.getTitle() + "**");
@@ -110,6 +111,7 @@ public class AdService {
     public BidResponseDto bid(Long adId, Long userId, BidDto bidDto) {
         Ad ad = adRepository.findById(adId)
                 .orElseThrow(() -> new IllegalArgumentException("Ad not found: " + adId));
+
 
         User bidder = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -200,6 +202,31 @@ public class AdService {
 
         adRepository.saveAll(ads);
         discordService.sendAdNotification("🔄 Scheduled status update ran — " + ads.size() + " ads reactivated");
+    }
+
+    /**
+     * Closes all active ads whose end date is in the past.
+     * Ads get the CLOSED status so the daily reactivation job (which flips
+     * INACTIVE ads back to ACTIVE) does not reopen them.
+     *
+     * @return the number of ads that were closed
+     */
+    @Transactional
+    public int closeExpiredAds() {
+        List<Ad> expiredAds = adRepository.findAdByIsActiveTrueAndEndDateBefore(LocalDate.now());
+
+        for (Ad ad : expiredAds) {
+            ad.setIsActive(false);
+            ad.setStatus(Status.CLOSED);
+        }
+
+        adRepository.saveAll(expiredAds);
+
+        if (!expiredAds.isEmpty()) {
+            discordService.sendAdNotification("🔒 Scheduled close ran — " + expiredAds.size() + " expired ads closed");
+        }
+
+        return expiredAds.size();
     }
 
     public List<AdDto> pagination(AdFilterDto filter) {

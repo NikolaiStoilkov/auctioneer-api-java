@@ -66,5 +66,8 @@ public class Ad {
     private LocalDate startingDate;
 
     @Column
+    private LocalDate endDate;
+
+    @Column
     private BigDecimal balance;
 }
