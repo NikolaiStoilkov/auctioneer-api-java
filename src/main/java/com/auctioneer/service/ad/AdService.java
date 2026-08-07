@@ -9,6 +9,9 @@ import com.auctioneer.dtos.ad.AdFilterDto;
 import com.auctioneer.dtos.ad.BidDto;
 import com.auctioneer.dtos.ad.BidResponseDto;
 import com.auctioneer.dtos.user.UserNotificationDto;
+import com.auctioneer.exceptions.AdNotFoundException;
+import com.auctioneer.exceptions.InvalidBidException;
+import com.auctioneer.exceptions.UserNotFoundException;
 import com.auctioneer.repository.ad.AdRepository;
 import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.service.discordNotifications.DiscordService;
@@ -46,7 +49,8 @@ public class AdService {
     private final DiscordService discordService;
 
     public AdDto get(Long adId) {
-        Ad ad = adRepository.findById(adId).orElseThrow();
+        Ad ad = adRepository.findById(adId)
+                .orElseThrow(() -> new AdNotFoundException(adId));
         AdDto adDto = new AdDto();
         BeanUtils.copyProperties(ad, adDto);
         return adDto;
@@ -94,7 +98,7 @@ public class AdService {
 
     public void edit(Long adId, AdDto adDto) {
         Ad existingAd = adRepository.findById(adId)
-                .orElseThrow(() -> new IllegalArgumentException("Ad not found: " + adId));
+                .orElseThrow(() -> new AdNotFoundException(adId));
 
         // authorId must not be reassigned from the client, and lastBidders is an
         // orphan-removal collection Hibernate does not allow to be replaced
@@ -110,14 +114,14 @@ public class AdService {
     @Transactional
     public BidResponseDto bid(Long adId, Long userId, BidDto bidDto) {
         Ad ad = adRepository.findById(adId)
-                .orElseThrow(() -> new IllegalArgumentException("Ad not found: " + adId));
+                .orElseThrow(() -> new AdNotFoundException(adId));
 
 
         User bidder = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         if (ad.getAuthorId() != null && ad.getAuthorId().equals(userId)) {
-            throw new IllegalArgumentException("You cannot bid on your own ad");
+            throw InvalidBidException.ownAdBid();
         }
 
         BigDecimal bidAmount = (bidDto.getAmount() != null)
@@ -125,7 +129,7 @@ public class AdService {
                 : ad.getCurrentBidPrice().add(ad.getBidStep());
 
         if (bidAmount.compareTo(ad.getCurrentBidPrice()) <= 0) {
-            throw new IllegalArgumentException("Bid amount must be higher than current bid price");
+            throw InvalidBidException.bidTooLow();
         }
 
         // Snapshot previous state before any mutation

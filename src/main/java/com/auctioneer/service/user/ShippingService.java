@@ -2,6 +2,7 @@ package com.auctioneer.service.user;
 
 import com.auctioneer.domain.entities.ShippingAddress;
 import com.auctioneer.dtos.shippingAddress.ShippingAddressDto;
+import com.auctioneer.exceptions.ShippingAddressNotFoundException;
 import com.auctioneer.repository.user.ShippingRepository;
 import com.auctioneer.service.discordNotifications.DiscordService;
 
@@ -17,7 +18,7 @@ public class ShippingService {
 
     public ShippingAddressDto get(Long userId) {
         ShippingAddress shippingAddress = shippingRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Shipping address not found for user id: " + userId));
+                .orElseThrow(() -> new ShippingAddressNotFoundException(userId));
 
         ShippingAddressDto shippingAddressDto = new ShippingAddressDto();
 
@@ -37,7 +38,7 @@ public class ShippingService {
 
     public void edit(ShippingAddressDto shippingAddressDto, Long id) {
         ShippingAddress existingShippingAddress = shippingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Shipping address not found with id: " + id));
+                .orElseThrow(() -> new ShippingAddressNotFoundException(id));
 
         BeanUtils.copyProperties(shippingAddressDto, existingShippingAddress, "id"); //
 

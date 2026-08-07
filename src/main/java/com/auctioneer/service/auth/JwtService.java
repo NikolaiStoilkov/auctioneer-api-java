@@ -1,5 +1,7 @@
 package com.auctioneer.service.auth;
 
+import com.auctioneer.exceptions.InvalidCredentialsException;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.Decoders;
@@ -67,7 +69,7 @@ public class JwtService {
         if (isPasswordMatched) {
             return generateToken(userId, claims);
         } else {
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidCredentialsException();
         }
     }
 

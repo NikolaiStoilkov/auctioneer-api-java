@@ -33,7 +33,7 @@ class AuthenticationIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void signUp_duplicateUsername_returnsBadRequest() throws Exception {
+    void signUp_duplicateUsername_returnsConflict() throws Exception {
         signUp("dupuser");
 
         Map<String, Object> second = signUpPayload("dupuser");
@@ -42,12 +42,12 @@ class AuthenticationIntegrationTest extends IntegrationTestBase {
         mockMvc.perform(post("/api/auth/sign-up")
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(second)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("Username already exists"));
     }
 
     @Test
-    void signUp_duplicateEmail_returnsBadRequest() throws Exception {
+    void signUp_duplicateEmail_returnsConflict() throws Exception {
         signUp("dupemail");
 
         Map<String, Object> second = signUpPayload("otheruser");
@@ -56,7 +56,7 @@ class AuthenticationIntegrationTest extends IntegrationTestBase {
         mockMvc.perform(post("/api/auth/sign-up")
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(second)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("Email already exists"));
     }
 
@@ -94,17 +94,17 @@ class AuthenticationIntegrationTest extends IntegrationTestBase {
         mockMvc.perform(post("/api/auth/sign-in")
                         .contentType(APPLICATION_JSON)
                         .content("{\"username\": \"usersignin2\", \"password\": \"wrong-password\"}"))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error").value("Invalid credentials"));
     }
 
     @Test
-    void signIn_unknownUser_returnsBadRequest() throws Exception {
+    void signIn_unknownUser_returnsNotFound() throws Exception {
         mockMvc.perform(post("/api/auth/sign-in")
                         .contentType(APPLICATION_JSON)
                         .content("{\"username\": \"ghost\", \"password\": \"password123\"}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("User not found"));
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("User not found: ghost"));
     }
 
     @Test

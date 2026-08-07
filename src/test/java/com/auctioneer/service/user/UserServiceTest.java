@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.NoSuchElementException;
+import com.auctioneer.exceptions.UserNotFoundException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -91,7 +91,7 @@ class UserServiceTest {
     void getShouldThrowExceptionWhenUserDoesNotExist() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> userService.get(99L));
+        assertThrows(UserNotFoundException.class, () -> userService.get(99L));
         verify(userRepository).findById(99L);
     }
 

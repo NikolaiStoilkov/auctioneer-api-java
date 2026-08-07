@@ -102,12 +102,12 @@ class ShippingIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void getShippingAddress_unknownId_isAnError() throws Exception {
+    void getShippingAddress_unknownId_returnsNotFound() throws Exception {
         String token = signUpUniqueUser();
 
         mockMvc.perform(get("/api/shipping/999999")
                         .header("Authorization", bearer(token)))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isNotFound());
     }
 
     @Test

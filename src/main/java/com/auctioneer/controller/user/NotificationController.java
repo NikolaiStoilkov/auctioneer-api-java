@@ -1,5 +1,6 @@
 package com.auctioneer.controller.user;
 
+import com.auctioneer.exceptions.ExpiredTokenException;
 import com.auctioneer.service.auth.JwtService;
 import com.auctioneer.service.user.UserSseService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class NotificationController {
     @GetMapping(value = "/notifications/stream", produces = "text/event-stream")
     public SseEmitter stream(@RequestParam("token") String token) {
         if (jwtService.isTokenExpired(token)) {
-            throw new SecurityException("Token expired");
+            throw new ExpiredTokenException();
         }
         Long userId = Long.valueOf(jwtService.extractUserId(token));
         return userSseService.subscribe(userId);

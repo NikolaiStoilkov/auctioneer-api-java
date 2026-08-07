@@ -3,6 +3,9 @@ package com.auctioneer.service.user;
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.forms.UserAuthSignInDto;
 import com.auctioneer.dtos.forms.UserAuthSignUpDto;
+import com.auctioneer.exceptions.EmailAlreadyExistsException;
+import com.auctioneer.exceptions.UserNotFoundException;
+import com.auctioneer.exceptions.UsernameAlreadyExistsException;
 import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.service.auth.AuthenticationService;
 import com.auctioneer.service.discordNotifications.DiscordService;
@@ -28,11 +31,11 @@ public class UserAuthService {
         String passwordHash = passwordEncoder.encode(password);
 
         if (userRepository.existsUserByUsername(userAuthSignUpDto.getUsername())) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new UsernameAlreadyExistsException();
         }
 
         if (userRepository.existsUserByEmail(userAuthSignUpDto.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
+            throw new EmailAlreadyExistsException();
         }
 
         Map<String, Object> claims = Map.of("ROLES", List.of("USER"));
@@ -56,7 +59,7 @@ public class UserAuthService {
         User user = userRepository.findUserByUsername(username);
 
         if (user == null) {
-            throw new IllegalArgumentException("User not found");
+            throw new UserNotFoundException(username);
         }
 
         Long userId = user.getId();

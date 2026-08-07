@@ -4,6 +4,8 @@ import com.auctioneer.domain.entities.CreditTransaction;
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.wallet.BalanceDto;
 import com.auctioneer.dtos.wallet.CreditTransactionDto;
+import com.auctioneer.exceptions.InsufficientBalanceException;
+import com.auctioneer.exceptions.UserNotFoundException;
 import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.repository.wallet.CreditTransactionRepository;
 import com.auctioneer.service.discordNotifications.DiscordService;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +27,7 @@ public class WalletService {
 
     public BalanceDto getBalance(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         return new BalanceDto(user.getBalance(), user.getCredits());
     }
@@ -38,7 +39,7 @@ public class WalletService {
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         user.setCredits(user.getCredits().add(amount));
         user.setBalance(user.getBalance().add(amount));
@@ -60,10 +61,10 @@ public class WalletService {
     @Transactional
     public void debit(Long userId, BigDecimal amount, String description) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         if (user.getBalance().compareTo(amount) < 0) {
-            throw new IllegalArgumentException("Insufficient balance to place bid");
+            throw new InsufficientBalanceException();
         }
 
         user.setBalance(user.getBalance().subtract(amount));
@@ -81,7 +82,7 @@ public class WalletService {
     @Transactional
     public void refund(Long userId, BigDecimal amount, String description) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         user.setBalance(user.getBalance().add(amount));
         user.setCredits(user.getCredits().add(amount));

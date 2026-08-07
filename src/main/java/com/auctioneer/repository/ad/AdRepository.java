@@ -21,7 +21,7 @@ public interface AdRepository extends JpaRepository<Ad, Long> {
 
     List<Ad> findAdByIsActiveTrueAndEndDateBefore(LocalDate date);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Lock(LockModeType.OPTIMISTIC)
     @Query("SELECT a FROM Ad a WHERE a.id = :id")
     Optional<Ad> findByIdForUpdate(Long id);
 }

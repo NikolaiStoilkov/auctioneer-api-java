@@ -2,6 +2,7 @@ package com.auctioneer.service.user;
 
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.user.UserDto;
+import com.auctioneer.exceptions.UserNotFoundException;
 import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.service.discordNotifications.DiscordService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,8 @@ public class UserService {
     private final DiscordService discordService;
 
     public UserDto get(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         UserDto userDto = new UserDto();
 
@@ -34,9 +36,8 @@ public class UserService {
     }
 
     public void edit(Long userId, UserDto userDto) {
-        User existingUser = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("User with id " + userId + " not found")
-        );
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         BeanUtils.copyProperties(userDto, existingUser, "id");
 

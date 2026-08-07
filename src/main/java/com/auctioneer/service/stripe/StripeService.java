@@ -2,6 +2,7 @@ package com.auctioneer.service.stripe;
 
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.stripe.PaymentMethodResponseDto;
+import com.auctioneer.exceptions.UserNotFoundException;
 import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.service.discordNotifications.DiscordService;
 import com.stripe.StripeClient;
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +44,7 @@ public class StripeService {
 
     public String createSetupIntent(Long userId) throws StripeException {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         StripeClient client = new StripeClient(stripeSecret);
 
@@ -77,7 +77,7 @@ public class StripeService {
 
     public String createPaymentIntent(Long userId, BigDecimal amount) throws StripeException {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         StripeClient client = new StripeClient(stripeSecret);
 
@@ -114,7 +114,7 @@ public class StripeService {
 
     public List<PaymentMethodResponseDto> listSavedCards(Long userId) throws StripeException {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         String customerId = user.getStripeCustomerId();
         if (customerId == null || customerId.isBlank()) {
@@ -134,7 +134,7 @@ public class StripeService {
 
     public PaymentMethod createCustomerAccount(Long userId) throws StripeException {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         String email       = user.getEmail();
         String displayName = user.getFirstName() + " " + user.getLastName();

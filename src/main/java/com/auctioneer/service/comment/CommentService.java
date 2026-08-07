@@ -3,6 +3,7 @@ package com.auctioneer.service.comment;
 import com.auctioneer.domain.entities.Comment;
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.comment.CommentDto;
+import com.auctioneer.exceptions.CommentNotFoundException;
 import com.auctioneer.repository.comment.CommentRepository;
 import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.service.discordNotifications.DiscordService;
@@ -53,6 +54,10 @@ public class CommentService {
     public void edit(CommentDto commentDto) {
         Long id = commentDto.getId();
         Comment comment = commentRepository.getCommentById(id);
+
+        if (comment == null) {
+            throw new CommentNotFoundException(id);
+        }
 
         // Preserve the original createdAt
         BeanUtils.copyProperties(commentDto, comment, "id", "createdAt");
