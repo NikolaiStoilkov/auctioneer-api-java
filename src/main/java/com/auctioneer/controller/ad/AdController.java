@@ -1,7 +1,8 @@
 package com.auctioneer.controller.ad;
 
-import com.auctioneer.dtos.ad.AdDto;
 import com.auctioneer.dtos.ad.AdFilterDto;
+import com.auctioneer.dtos.ad.AdRequestDto;
+import com.auctioneer.dtos.ad.AdResponseDto;
 import com.auctioneer.dtos.ad.BidDto;
 import com.auctioneer.dtos.ad.BidResponseDto;
 import com.auctioneer.dtos.user.UserPrincipal;
@@ -29,7 +30,7 @@ public class AdController {
      * @return the ad
      */
     @GetMapping("/{id}")
-    public AdDto get(@PathVariable Long id) {
+    public AdResponseDto get(@PathVariable Long id) {
         return adService.get(id);
     }
 
@@ -40,7 +41,7 @@ public class AdController {
      * @return the user's ads
      */
     @GetMapping("/my-ads")
-    public List<AdDto> getMyAds(@AuthenticationPrincipal UserPrincipal principal) {
+    public List<AdResponseDto> getMyAds(@AuthenticationPrincipal UserPrincipal principal) {
         return adService.getMyAds(principal.getId());
     }
 
@@ -50,8 +51,8 @@ public class AdController {
      * @param ad        the ad to create
      * @param principal the authenticated user
      */
-    @PostMapping("/create")
-    public void create(@Valid @RequestBody AdDto ad, @AuthenticationPrincipal UserPrincipal principal) {
+    @PostMapping
+    public void create(@Valid @RequestBody AdRequestDto ad, @AuthenticationPrincipal UserPrincipal principal) {
         adService.create(ad, principal.getId());
     }
 
@@ -61,8 +62,8 @@ public class AdController {
      * @param adId the id of the ad to update
      * @param ad   the new ad data
      */
-    @PostMapping("/edit/{adId}")
-    public void edit(@PathVariable Long adId, @Valid @RequestBody AdDto ad) {
+    @PutMapping("/{adId}")
+    public void edit(@PathVariable Long adId, @Valid @RequestBody AdRequestDto ad) {
         adService.edit(adId, ad);
     }
 
@@ -74,7 +75,7 @@ public class AdController {
      * @param principal the authenticated user placing the bid
      * @return the result of the bid
      */
-    @PostMapping("/bid/{adId}")
+    @PostMapping("/{adId}/bids")
     public BidResponseDto bid(@PathVariable Long adId, @Valid @RequestBody BidDto bidDto,
                               @AuthenticationPrincipal UserPrincipal principal) {
         return adService.bid(adId, principal.getId(), bidDto);
@@ -108,7 +109,7 @@ public class AdController {
      * @return the matching ads
      */
     @GetMapping("/pagination")
-    public List<AdDto> getAdsByPagination(@ModelAttribute AdFilterDto filter) {
+    public List<AdResponseDto> getAdsByPagination(@ModelAttribute AdFilterDto filter) {
         return adService.pagination(filter);
     }
 

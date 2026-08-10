@@ -34,7 +34,7 @@ public class UserController {
      * @param userDto   the user to create
      * @param principal the authenticated user
      */
-    @PostMapping("/save")
+    @PostMapping
     public void create(@Valid @RequestBody UserDto userDto, @AuthenticationPrincipal UserPrincipal principal) {
         userService.create(userDto);
     }
@@ -45,7 +45,7 @@ public class UserController {
      * @param userDto   the new user data
      * @param principal the authenticated user
      */
-    @PatchMapping("/edit")
+    @PatchMapping
     public void edit(@Valid @RequestBody UserDto userDto, @AuthenticationPrincipal UserPrincipal principal) {
         userService.edit(principal.getId(), userDto);
     }
@@ -56,7 +56,7 @@ public class UserController {
      * @param id        the id of the user to delete
      * @param principal the authenticated user
      */
-    @DeleteMapping("/request/delete/{id}")
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal) {
         userService.delete(id);
     }

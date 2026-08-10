@@ -23,6 +23,11 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Wraps the Stripe API for the wallet/payments flow: setup and payment
+ * intents, listing saved cards, and provisioning a customer account. All
+ * Stripe credentials are injected from configuration.
+ */
 @Service
 @RequiredArgsConstructor
 public class StripeService {
@@ -37,11 +42,26 @@ public class StripeService {
 
     private final UserRepository userRepository;
     private final DiscordService discordService;
+    private final StripePaymentMethod stripePaymentMethod;
 
+    /**
+     * Returns the Stripe publishable key for the frontend.
+     *
+     * @return the publishable key
+     */
     public String getPublishableKey() {
         return stripePublishable;
     }
 
+    /**
+     * Creates a Stripe setup intent for saving a card, creating the Stripe
+     * customer on first use.
+     *
+     * @param userId the id of the user
+     * @return the setup intent client secret
+     * @throws StripeException       if a Stripe call fails
+     * @throws UserNotFoundException if the user does not exist
+     */
     public String createSetupIntent(Long userId) throws StripeException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
@@ -75,6 +95,16 @@ public class StripeService {
         return intent.getClientSecret();
     }
 
+    /**
+     * Creates a Stripe payment intent to charge the user for credits,
+     * creating the Stripe customer on first use.
+     *
+     * @param userId the id of the user
+     * @param amount the amount to charge (in the major currency unit)
+     * @return the payment intent client secret
+     * @throws StripeException       if a Stripe call fails
+     * @throws UserNotFoundException if the user does not exist
+     */
     public String createPaymentIntent(Long userId, BigDecimal amount) throws StripeException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
@@ -112,6 +142,14 @@ public class StripeService {
         return intent.getClientSecret();
     }
 
+    /**
+     * Lists the user's saved card payment methods.
+     *
+     * @param userId the id of the user
+     * @return the saved cards, or an empty list if the user has no Stripe customer
+     * @throws StripeException       if a Stripe call fails
+     * @throws UserNotFoundException if the user does not exist
+     */
     public List<PaymentMethodResponseDto> listSavedCards(Long userId) throws StripeException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
@@ -132,6 +170,15 @@ public class StripeService {
                 .toList();
     }
 
+    /**
+     * Provisions a Stripe customer account for the user and attaches a
+     * payment method to it.
+     *
+     * @param userId the id of the user
+     * @return the attached payment method
+     * @throws StripeException       if a Stripe call fails
+     * @throws UserNotFoundException if the user does not exist
+     */
     public PaymentMethod createCustomerAccount(Long userId) throws StripeException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
@@ -141,15 +188,7 @@ public class StripeService {
         String countryCode = resolveCountryCode(user.getCountry());
         String currencyCode = "eur";
 
-        StripePaymentMethod paymentMethod = new StripePaymentMethod(
-                email,
-                displayName,
-                countryCode,
-                currencyCode,
-                stripeSecret
-        );
-
-        return paymentMethod.create();
+        return stripePaymentMethod.create(email, displayName, countryCode, currencyCode);
     }
 
     private String resolveCountryCode(String country) {

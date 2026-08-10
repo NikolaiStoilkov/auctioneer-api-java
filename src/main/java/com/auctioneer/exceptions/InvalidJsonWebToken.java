@@ -2,6 +2,7 @@ package com.auctioneer.exceptions;
 
 import java.io.Serial;
 
+/** Thrown when a JWT is malformed or fails verification; mapped to HTTP 401. */
 public class InvalidJsonWebToken extends RuntimeException {
 
 	@Serial

@@ -21,7 +21,7 @@ class CommentIntegrationTest extends IntegrationTestBase {
     }
 
     private void createComment(String token, Long adId, Long authorId, String content) throws Exception {
-        mockMvc.perform(post("/api/comments/create/" + adId)
+        mockMvc.perform(post("/api/comments")
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(commentPayload(adId, authorId, content))))
@@ -55,7 +55,7 @@ class CommentIntegrationTest extends IntegrationTestBase {
         String token = signUpUniqueUser();
         Long adId = createAd(token, adPayload("Locked Ad"));
 
-        mockMvc.perform(post("/api/comments/create/" + adId)
+        mockMvc.perform(post("/api/comments")
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 commentPayload(adId, userIdFromToken(token), "no auth"))))
@@ -67,7 +67,7 @@ class CommentIntegrationTest extends IntegrationTestBase {
         String token = signUpUniqueUser();
         Long adId = createAd(token, adPayload("Validation Ad"));
 
-        mockMvc.perform(post("/api/comments/create/" + adId)
+        mockMvc.perform(post("/api/comments")
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content("{\"content\": \"\", \"adId\": " + adId + ", \"authorId\": "
@@ -88,7 +88,7 @@ class CommentIntegrationTest extends IntegrationTestBase {
         Map<String, Object> edit = new java.util.HashMap<>(commentPayload(adId, userId, "Edited comment"));
         edit.put("id", commentId);
 
-        mockMvc.perform(put("/api/comments/edit")
+        mockMvc.perform(put("/api/comments")
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(edit)))
@@ -108,7 +108,7 @@ class CommentIntegrationTest extends IntegrationTestBase {
 
         long commentId = getComments(adId).get(0).get("id").asLong();
 
-        mockMvc.perform(delete("/api/comments/delete/" + commentId)
+        mockMvc.perform(delete("/api/comments/" + commentId)
                         .header("Authorization", bearer(token)))
                 .andExpect(status().isOk());
 

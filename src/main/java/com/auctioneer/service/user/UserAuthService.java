@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.Map;
 
 
+/**
+ * Handles user registration and login, issuing a JWT on success.
+ */
 @Service
 @RequiredArgsConstructor
 public class UserAuthService {
@@ -26,6 +29,14 @@ public class UserAuthService {
     private final UserRepository userRepository;
     private final DiscordService discordService;
 
+    /**
+     * Registers a new user and returns a freshly issued JWT.
+     *
+     * @param userAuthSignUpDto the sign-up form
+     * @return the authentication token
+     * @throws UsernameAlreadyExistsException if the username is taken
+     * @throws EmailAlreadyExistsException    if the email is taken
+     */
     public String signUp(UserAuthSignUpDto userAuthSignUpDto) {
         String password = userAuthSignUpDto.getPassword();
         String passwordHash = passwordEncoder.encode(password);
@@ -52,6 +63,13 @@ public class UserAuthService {
         return authenticationService.initialize(userId, claims);
     }
 
+    /**
+     * Authenticates a user by username and password and returns a JWT.
+     *
+     * @param userAuthSignInDto the sign-in form
+     * @return the authentication token
+     * @throws UserNotFoundException if no user has the given username
+     */
     public String signIn(UserAuthSignInDto userAuthSignInDto) {
         String username = userAuthSignInDto.getUsername();
         String password = userAuthSignInDto.getPassword();

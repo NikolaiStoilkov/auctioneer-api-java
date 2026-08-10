@@ -4,6 +4,7 @@ import com.auctioneer.dtos.user.UserNotificationDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -34,6 +35,14 @@ public class UserSseService {
         return emitter;
     }
 
+    /**
+     * Pushes a notification to every SSE connection the user has open.
+     * Runs off the request thread on the notification executor.
+     *
+     * @param userId  the recipient user id
+     * @param payload the notification payload
+     */
+    @Async("notificationExecutor")
     public void notifyUser(Long userId, UserNotificationDto payload) {
         List<SseEmitter> userEmitters = emitters.getOrDefault(userId, List.of());
         List<SseEmitter> dead = new ArrayList<>();

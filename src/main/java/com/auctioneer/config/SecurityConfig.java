@@ -15,9 +15,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.web.filter.CorsFilter;
 
 import java.util.List;
 
@@ -32,12 +29,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public CorsFilter corsFilter() {
-        return new CorsFilter(corsConfigurationSource());
-    }
-
+    /**
+     * CORS policy for the API: any origin pattern, standard verbs, credentials
+     * allowed.
+     *
+     * @return the CORS configuration source
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -50,6 +47,13 @@ public class SecurityConfig {
         return source;
     }
 
+    /**
+     * Stateless (JWT) security filter chain: declares public vs role-guarded
+     * routes (method + path) and installs the JWT authentication filter.
+     *
+     * @param http the security builder
+     * @return the built filter chain
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
@@ -64,36 +68,41 @@ public class SecurityConfig {
 //                        // WebSocket handshake
 //                        .requestMatchers("/ws/**").permitAll()
 
+                        // Image endpoints — download is public, upload requires auth
+                        .requestMatchers(HttpMethod.GET, "/api/images/{code}").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/images").hasAnyAuthority("USER", "ADMIN")
+
                         // Ad endpoints — specific paths must come before the "/api/ads/{id}"
-                        // wildcard, otherwise {id} matches "create"/"my-ads" and makes them public
+                        // wildcard, otherwise {id} matches "my-ads" and makes it public
                         .requestMatchers("/api/ads/my-ads").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/api/ads/create").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/api/ads/edit/{id}").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/api/ads/bid/{id}").hasAnyAuthority("USER", "ADMIN")
                         // Pub/sub push endpoint (Cloud Scheduler cannot send a user JWT)
                         .requestMatchers(HttpMethod.POST, "/api/ads/close-expired").permitAll()
-                        .requestMatchers("/api/ads/{id}").permitAll()
+                        // Noun-based ad routes: verb carried by the HTTP method
+                        .requestMatchers(HttpMethod.POST, "/api/ads").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/ads/{id}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/ads/{id}/bids").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/ads/{id}").permitAll()
                         .requestMatchers("/api/ads/{id}/stream").permitAll()
                         .requestMatchers("/api/ads/stream").permitAll()
                         .requestMatchers("/api/ads/pagination").permitAll()
 
                         // User endpoints
                         .requestMatchers("/api/users/notifications/stream").permitAll()
-                        .requestMatchers("/api/users/{id}").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/api/users/save").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/api/users/edit").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/api/users/request/delete/{id}").hasAnyAuthority("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/users").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/users").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").hasAnyAuthority("USER")
 
                         // Shipping endpoints
-                        .requestMatchers("/api/shipping/{userId}").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/api/shipping/save").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/api/shipping/edit/{id}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/shipping/{userId}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/shipping").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/shipping/{id}").hasAnyAuthority("USER", "ADMIN")
 
                         // Comment endpoints
-                        .requestMatchers("/api/comments/{adId}").permitAll()
-                        .requestMatchers("/api/comments/create/{adId}").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/api/comments/edit/{adId}").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/api/comments/delete/{id}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/comments/{adId}").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/comments").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/comments").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/comments/{id}").hasAnyAuthority("USER", "ADMIN")
 
                         // Stripe
                         .requestMatchers(HttpMethod.GET, "/api/stripe/config").permitAll()
@@ -116,6 +125,11 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * BCrypt password encoder used for hashing and verifying credentials.
+     *
+     * @return the password encoder
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

@@ -4,9 +4,18 @@ import com.auctioneer.domain.entities.ShippingAddress;
 import com.auctioneer.dtos.shippingAddress.ShippingAddressDto;
 import org.springframework.stereotype.Component;
 
+/**
+ * Maps between the {@link ShippingAddress} entity and its DTO.
+ */
 @Component
 public class ShippingAddressTransformer {
 
+    /**
+     * Maps a {@link ShippingAddressDto} to an entity.
+     *
+     * @param shippingAddressDto the source DTO
+     * @return the mapped entity
+     */
     public ShippingAddress transform (ShippingAddressDto shippingAddressDto) {
         ShippingAddress shippingAddress = new ShippingAddress();
 
@@ -23,6 +32,12 @@ public class ShippingAddressTransformer {
         return shippingAddress;
     }
 
+    /**
+     * Maps a {@link ShippingAddress} entity to its DTO.
+     *
+     * @param shippingAddress the source entity
+     * @return the mapped DTO
+     */
     public ShippingAddressDto transform (ShippingAddress shippingAddress) {
         ShippingAddressDto dto = new ShippingAddressDto();
 

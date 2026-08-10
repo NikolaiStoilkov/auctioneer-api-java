@@ -5,6 +5,10 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/**
+ * Paging and filtering criteria for ad queries: active flag, date range and
+ * page/size.
+ */
 @Getter
 @Setter
 public class AdFilter {

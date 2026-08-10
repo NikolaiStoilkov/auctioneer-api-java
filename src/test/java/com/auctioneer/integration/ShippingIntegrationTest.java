@@ -33,7 +33,7 @@ class ShippingIntegrationTest extends IntegrationTestBase {
     void saveShippingAddress_persistsIt() throws Exception {
         String token = signUpUniqueUser();
 
-        mockMvc.perform(post("/api/shipping/save")
+        mockMvc.perform(post("/api/shipping")
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
@@ -47,7 +47,7 @@ class ShippingIntegrationTest extends IntegrationTestBase {
     @Test
     void getShippingAddress_returnsSavedAddress() throws Exception {
         String token = signUpUniqueUser();
-        mockMvc.perform(post("/api/shipping/save")
+        mockMvc.perform(post("/api/shipping")
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
@@ -66,7 +66,7 @@ class ShippingIntegrationTest extends IntegrationTestBase {
     @Test
     void editShippingAddress_updatesFields() throws Exception {
         String token = signUpUniqueUser();
-        mockMvc.perform(post("/api/shipping/save")
+        mockMvc.perform(post("/api/shipping")
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
@@ -78,7 +78,7 @@ class ShippingIntegrationTest extends IntegrationTestBase {
         Map<String, Object> updated = shippingPayload("Carla", "+359333000333");
         updated.put("city", "Varna");
 
-        mockMvc.perform(patch("/api/shipping/edit/" + addressId)
+        mockMvc.perform(patch("/api/shipping/" + addressId)
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updated)))
@@ -94,7 +94,7 @@ class ShippingIntegrationTest extends IntegrationTestBase {
         String token = signUpUniqueUser();
         Map<String, Object> bad = shippingPayload("Dora", "not-a-phone");
 
-        mockMvc.perform(post("/api/shipping/save")
+        mockMvc.perform(post("/api/shipping")
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(bad)))
@@ -115,7 +115,7 @@ class ShippingIntegrationTest extends IntegrationTestBase {
         mockMvc.perform(get("/api/shipping/1"))
                 .andExpect(status().is4xxClientError());
 
-        mockMvc.perform(post("/api/shipping/save")
+        mockMvc.perform(post("/api/shipping")
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 shippingPayload("Eve", "+359444000444"))))

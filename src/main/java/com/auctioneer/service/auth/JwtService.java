@@ -2,11 +2,13 @@ package com.auctioneer.service.auth;
 
 import com.auctioneer.exceptions.InvalidCredentialsException;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -19,7 +21,21 @@ import java.util.function.Function;
 @Component
 public class JwtService {
 
-    public static final String SECRET = "5367566859703373367639792F423F452848284D6251655468576D5A71347437";
+    /**
+     * Development fallback signing key, used only when no {@code jwt.secret}
+     * (env var {@code JWT_SECRET}) is configured — e.g. in unit tests that
+     * instantiate this class directly. Production must supply {@code JWT_SECRET}.
+     */
+    public static final String DEFAULT_SECRET = "5367566859703373367639792F423F452848284D6251655468576D5A71347437";
+
+    @Value("${jwt.secret:}")
+    private String configuredSecret;
+
+    private String resolveSecret() {
+        return (configuredSecret != null && !configuredSecret.isBlank())
+                ? configuredSecret
+                : DEFAULT_SECRET;
+    }
 
     public String generateToken(Long userId, Map<String, Object> claims) {
         return Jwts.builder()
@@ -32,7 +48,7 @@ public class JwtService {
     }
 
     private Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+        byte[] keyBytes = Decoders.BASE64.decode(resolveSecret());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -58,7 +74,13 @@ public class JwtService {
     }
 
     public Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        try {
+            return extractExpiration(token).before(new Date());
+        } catch (ExpiredJwtException ex) {
+            // A structurally valid but expired token parses to this exception;
+            // treat it as plainly expired rather than propagating.
+            return true;
+        }
     }
 
     public String authorize(

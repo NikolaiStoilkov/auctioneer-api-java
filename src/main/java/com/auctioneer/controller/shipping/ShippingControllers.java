@@ -32,7 +32,7 @@ public class ShippingControllers {
      * @param shippingAddressDto the shipping address to save
      * @param principal          the authenticated user
      */
-    @PostMapping("/save")
+    @PostMapping
     public void saveShippingInfo(@Valid @RequestBody ShippingAddressDto shippingAddressDto,@AuthenticationPrincipal UserPrincipal principal) {
         shippingService.save(shippingAddressDto);
     }
@@ -44,7 +44,7 @@ public class ShippingControllers {
      * @param id                 the id of the shipping address to update
      * @param principal          the authenticated user
      */
-    @PatchMapping("/edit/{id}")
+    @PatchMapping("/{id}")
     public void edit(@Valid @RequestBody ShippingAddressDto shippingAddressDto, @PathVariable Long id,@AuthenticationPrincipal UserPrincipal principal) {
         shippingService.edit(shippingAddressDto,id);
     }

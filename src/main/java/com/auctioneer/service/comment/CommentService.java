@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,18 +38,26 @@ public class CommentService {
         return commentsDto;
     }
 
+    /**
+     * Creates a comment. Timestamps are populated by JPA auditing.
+     *
+     * @param commentDto the comment to create
+     */
     public void create(CommentDto commentDto) {
         Comment comment = new Comment();
         BeanUtils.copyProperties(commentDto, comment, "id", "createdAt", "updatedAt");
-
-        LocalDateTime now = LocalDateTime.now();
-        comment.setCreatedAt(now);
-        comment.setUpdatedAt(now);
 
         commentRepository.save(comment);
         discordService.sendCommentNotification("💬 New comment on ad " + commentDto.getAdId() + " by user " + commentDto.getAuthorId());
     }
 
+    /**
+     * Updates an existing comment. The {@code updatedAt} timestamp is
+     * refreshed automatically by JPA auditing; {@code createdAt} is preserved.
+     *
+     * @param commentDto the new comment data, including the comment id
+     * @throws CommentNotFoundException if no comment exists with the given id
+     */
     public void edit(CommentDto commentDto) {
         Long id = commentDto.getId();
         Comment comment = commentRepository.getCommentById(id);
@@ -59,15 +66,18 @@ public class CommentService {
             throw new CommentNotFoundException(id);
         }
 
-        // Preserve the original createdAt
-        BeanUtils.copyProperties(commentDto, comment, "id", "createdAt");
-
-        comment.setUpdatedAt(LocalDateTime.now());
+        // Preserve the auditing-managed timestamps
+        BeanUtils.copyProperties(commentDto, comment, "id", "createdAt", "updatedAt");
 
         commentRepository.save(comment);
         discordService.sendCommentNotification("✏️ Comment " + commentDto.getId() + " edited on ad " + commentDto.getAdId());
     }
 
+    /**
+     * Deletes a comment by id.
+     *
+     * @param id the id of the comment to delete
+     */
     public void delete(Long id) {
         commentRepository.deleteById(id);
         discordService.sendCommentNotification("🗑️ Comment " + id + " deleted");

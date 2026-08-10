@@ -30,7 +30,7 @@ public class CommentController {
      *
      * @param commentDto the comment to create
      */
-    @PostMapping("/create/{adId}")
+    @PostMapping
     public void create(@Valid @RequestBody CommentDto commentDto) {
         commentService.create(commentDto);
     }
@@ -40,7 +40,7 @@ public class CommentController {
      *
      * @param commentDto the new comment data, including the comment id
      */
-    @PutMapping("/edit")
+    @PutMapping
     public void edit(@Valid @RequestBody CommentDto commentDto) {
         commentService.edit(commentDto);
     }
@@ -50,7 +50,7 @@ public class CommentController {
      *
      * @param id the id of the comment to delete
      */
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         commentService.delete(id);
     }

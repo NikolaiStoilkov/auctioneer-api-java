@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+/** API representation of a comment, including author username and timestamps. */
 public class CommentDto {
     private Long id;
 

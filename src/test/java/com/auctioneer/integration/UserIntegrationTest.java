@@ -69,7 +69,7 @@ class UserIntegrationTest extends IntegrationTestBase {
         update.put("firstName", "Renamed");
         update.put("city", "Burgas");
 
-        mockMvc.perform(patch("/api/users/edit")
+        mockMvc.perform(patch("/api/users")
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(update)))
@@ -85,7 +85,7 @@ class UserIntegrationTest extends IntegrationTestBase {
     void editUser_invalidPayload_returnsValidationError() throws Exception {
         String token = signUpUniqueUser();
 
-        mockMvc.perform(patch("/api/users/edit")
+        mockMvc.perform(patch("/api/users")
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content("{\"username\": \"x\"}")) // too short + everything else missing
@@ -97,7 +97,7 @@ class UserIntegrationTest extends IntegrationTestBase {
         String token = signUpUniqueUser();
         long before = userRepository.count();
 
-        mockMvc.perform(post("/api/users/save")
+        mockMvc.perform(post("/api/users")
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
@@ -113,7 +113,7 @@ class UserIntegrationTest extends IntegrationTestBase {
         String token = signUpUniqueUser();
         Long userId = userIdFromToken(token);
 
-        mockMvc.perform(delete("/api/users/request/delete/" + userId)
+        mockMvc.perform(delete("/api/users/" + userId)
                         .header("Authorization", bearer(token)))
                 .andExpect(status().isOk());
 

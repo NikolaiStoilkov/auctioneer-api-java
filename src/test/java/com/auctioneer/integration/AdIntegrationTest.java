@@ -38,7 +38,7 @@ class AdIntegrationTest extends IntegrationTestBase {
 
     @Test
     void createAd_withoutToken_isRejected() throws Exception {
-        mockMvc.perform(post("/api/ads/create")
+        mockMvc.perform(post("/api/ads")
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(adPayload("No Auth Ad"))))
                 .andExpect(status().is4xxClientError());
@@ -51,7 +51,7 @@ class AdIntegrationTest extends IntegrationTestBase {
         bad.remove("bidStep");
         bad.put("description", "short"); // under 10 chars
 
-        mockMvc.perform(post("/api/ads/create")
+        mockMvc.perform(post("/api/ads")
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(bad)))
@@ -101,7 +101,7 @@ class AdIntegrationTest extends IntegrationTestBase {
         updated.put("isActive", true);
         updated.put("status", "ACTIVE");
 
-        mockMvc.perform(post("/api/ads/edit/" + adId)
+        mockMvc.perform(put("/api/ads/" + adId)
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updated)))
@@ -116,7 +116,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     void editAd_unknownId_returnsBadRequest() throws Exception {
         String token = signUpUniqueUser();
 
-        mockMvc.perform(post("/api/ads/edit/999999")
+        mockMvc.perform(put("/api/ads/999999")
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(adPayload("Ghost Ad"))))
@@ -165,7 +165,7 @@ class AdIntegrationTest extends IntegrationTestBase {
         Long adId = createAd(seller, adPayload("Bid Target"));
         addCredits(bidder, new BigDecimal("500"));
 
-        JsonNode response = readJson(mockMvc.perform(post("/api/ads/bid/" + adId)
+        JsonNode response = readJson(mockMvc.perform(post("/api/ads/" + adId + "/bids")
                         .header("Authorization", bearer(bidder))
                         .contentType(APPLICATION_JSON)
                         .content("{\"amount\": 150}"))
@@ -183,7 +183,7 @@ class AdIntegrationTest extends IntegrationTestBase {
                 .andReturn().getResponse().getContentAsString());
         assertThat(balance.get("balance").decimalValue()).isEqualByComparingTo("350");
 
-        // Ad state reflects the bid (AdDto exposes lastBidders but not latestBidderUserId)
+        // Ad state reflects the bid (AdResponseDto exposes lastBidders but not latestBidderUserId)
         mockMvc.perform(get("/api/ads/" + adId))
                 .andExpect(jsonPath("$.currentBidPrice").value(150.0))
                 .andExpect(jsonPath("$.lastBidders.length()").value(1));
@@ -196,7 +196,7 @@ class AdIntegrationTest extends IntegrationTestBase {
         Long adId = createAd(seller, adPayload("Auto Bid Ad"));
         addCredits(bidder, new BigDecimal("500"));
 
-        JsonNode response = readJson(mockMvc.perform(post("/api/ads/bid/" + adId)
+        JsonNode response = readJson(mockMvc.perform(post("/api/ads/" + adId + "/bids")
                         .header("Authorization", bearer(bidder))
                         .contentType(APPLICATION_JSON)
                         .content("{}"))
@@ -216,13 +216,13 @@ class AdIntegrationTest extends IntegrationTestBase {
         addCredits(firstBidder, new BigDecimal("500"));
         addCredits(secondBidder, new BigDecimal("500"));
 
-        mockMvc.perform(post("/api/ads/bid/" + adId)
+        mockMvc.perform(post("/api/ads/" + adId + "/bids")
                         .header("Authorization", bearer(firstBidder))
                         .contentType(APPLICATION_JSON)
                         .content("{\"amount\": 150}"))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(post("/api/ads/bid/" + adId)
+        mockMvc.perform(post("/api/ads/" + adId + "/bids")
                         .header("Authorization", bearer(secondBidder))
                         .contentType(APPLICATION_JSON)
                         .content("{\"amount\": 200}"))
@@ -247,7 +247,7 @@ class AdIntegrationTest extends IntegrationTestBase {
         Long adId = createAd(seller, adPayload("Own Ad"));
         addCredits(seller, new BigDecimal("500"));
 
-        mockMvc.perform(post("/api/ads/bid/" + adId)
+        mockMvc.perform(post("/api/ads/" + adId + "/bids")
                         .header("Authorization", bearer(seller))
                         .contentType(APPLICATION_JSON)
                         .content("{\"amount\": 150}"))
@@ -262,7 +262,7 @@ class AdIntegrationTest extends IntegrationTestBase {
         Long adId = createAd(seller, adPayload("Low Bid Ad"));
         addCredits(bidder, new BigDecimal("500"));
 
-        mockMvc.perform(post("/api/ads/bid/" + adId)
+        mockMvc.perform(post("/api/ads/" + adId + "/bids")
                         .header("Authorization", bearer(bidder))
                         .contentType(APPLICATION_JSON)
                         .content("{\"amount\": 100}")) // equal to current price
@@ -277,7 +277,7 @@ class AdIntegrationTest extends IntegrationTestBase {
         Long adId = createAd(seller, adPayload("Expensive Ad"));
         addCredits(bidder, new BigDecimal("50")); // less than the 150 bid
 
-        mockMvc.perform(post("/api/ads/bid/" + adId)
+        mockMvc.perform(post("/api/ads/" + adId + "/bids")
                         .header("Authorization", bearer(bidder))
                         .contentType(APPLICATION_JSON)
                         .content("{\"amount\": 150}"))
@@ -290,7 +290,7 @@ class AdIntegrationTest extends IntegrationTestBase {
         String seller = signUpUniqueUser();
         Long adId = createAd(seller, adPayload("Protected Bid Ad"));
 
-        mockMvc.perform(post("/api/ads/bid/" + adId)
+        mockMvc.perform(post("/api/ads/" + adId + "/bids")
                         .contentType(APPLICATION_JSON)
                         .content("{\"amount\": 150}"))
                 .andExpect(status().is4xxClientError());

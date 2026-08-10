@@ -3,7 +3,13 @@ package com.auctioneer.service.stripe;
 import com.stripe.param.PaymentMethodCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import com.stripe.param.v2.core.AccountCreateParams;
+import org.springframework.stereotype.Component;
 
+/**
+ * Builds the various Stripe request-parameter objects used when provisioning
+ * a customer account and attaching a payment method.
+ */
+@Component
 public class BuildStripeUserParams {
     public AccountCreateParams buildAccountCreateParams(String email, String displayName, String countryCode) {
         return AccountCreateParams.builder().setContactEmail(email).setDisplayName(displayName).setIdentity(AccountCreateParams.Identity.builder().setCountry(countryCode).build()).setConfiguration(AccountCreateParams.Configuration.builder().setCustomer(AccountCreateParams.Configuration.Customer.builder().setCapabilities(AccountCreateParams.Configuration.Customer.Capabilities.builder().setAutomaticIndirectTax(AccountCreateParams.Configuration.Customer.Capabilities.AutomaticIndirectTax.builder().setRequested(true).build()).build()).build()).setMerchant(AccountCreateParams.Configuration.Merchant.builder().setCapabilities(AccountCreateParams.Configuration.Merchant.Capabilities.builder().setCardPayments(AccountCreateParams.Configuration.Merchant.Capabilities.CardPayments.builder().setRequested(true).build()).build()).build()).build()).setDefaults(AccountCreateParams.Defaults.builder().setResponsibilities(AccountCreateParams.Defaults.Responsibilities.builder().setFeesCollector(AccountCreateParams.Defaults.Responsibilities.FeesCollector.STRIPE).setLossesCollector(AccountCreateParams.Defaults.Responsibilities.LossesCollector.STRIPE).build()).build()).setDashboard(AccountCreateParams.Dashboard.FULL).addInclude(AccountCreateParams.Include.CONFIGURATION__MERCHANT).addInclude(AccountCreateParams.Include.CONFIGURATION__CUSTOMER).addInclude(AccountCreateParams.Include.IDENTITY).addInclude(AccountCreateParams.Include.DEFAULTS).build();

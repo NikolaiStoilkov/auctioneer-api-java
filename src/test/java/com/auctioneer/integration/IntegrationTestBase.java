@@ -143,7 +143,7 @@ public abstract class IntegrationTestBase {
 
     /** Creates an ad for the token's user and returns its id. */
     protected Long createAd(String token, Map<String, Object> payload) throws Exception {
-        mockMvc.perform(post("/api/ads/create")
+        mockMvc.perform(post("/api/ads")
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(payload)))

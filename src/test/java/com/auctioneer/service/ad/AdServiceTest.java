@@ -3,7 +3,8 @@ package com.auctioneer.service.ad;
 import com.auctioneer.domain.entities.Ad;
 import com.auctioneer.domain.entities.LastBidder;
 import com.auctioneer.domain.entities.User;
-import com.auctioneer.dtos.ad.AdDto;
+import com.auctioneer.dtos.ad.AdRequestDto;
+import com.auctioneer.dtos.ad.AdResponseDto;
 import com.auctioneer.dtos.ad.BidDto;
 import com.auctioneer.repository.ad.AdRepository;
 import com.auctioneer.repository.user.UserRepository;
@@ -56,7 +57,7 @@ class AdServiceTest {
     private AdService adService;
 
     private Ad sampleAd;
-    private AdDto sampleAdDto;
+    private AdRequestDto sampleAdDto;
     private User sampleUser;
 
     @BeforeEach
@@ -73,12 +74,11 @@ class AdServiceTest {
         sampleAd.setLocation("Sofia");
         sampleAd.setLastBidders(new ArrayList<>());
 
-        sampleAdDto = new AdDto();
+        sampleAdDto = new AdRequestDto();
         sampleAdDto.setTitle("Test Ad");
         sampleAdDto.setDescription("A test ad description for testing");
         sampleAdDto.setBidStep(new BigDecimal("10.00"));
         sampleAdDto.setStartingBidPrice(new BigDecimal("100.00"));
-        sampleAdDto.setCurrentBidPrice(new BigDecimal("100.00"));
         sampleAdDto.setLocation("Sofia");
 
         sampleUser = User.builder()
@@ -97,7 +97,7 @@ class AdServiceTest {
     void getShouldReturnAdDtoWhenAdExists() {
         when(adRepository.findById(1L)).thenReturn(Optional.of(sampleAd));
 
-        AdDto result = adService.get(1L);
+        AdResponseDto result = adService.get(1L);
 
         assertNotNull(result);
         assertEquals("Test Ad", result.getTitle());
@@ -129,7 +129,7 @@ class AdServiceTest {
         List<Ad> ads = List.of(sampleAd);
         when(adRepository.findAdByAuthorId(1L)).thenReturn(ads);
 
-        List<AdDto> result = adService.getMyAds(1L);
+        List<AdResponseDto> result = adService.getMyAds(1L);
 
         assertNotNull(result);
         verify(adRepository).findAdByAuthorId(1L);

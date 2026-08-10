@@ -2,10 +2,17 @@ package com.auctioneer.domain.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * A single wallet ledger entry — a purchase, debit or refund of credits.
+ * The created timestamp is managed automatically by JPA auditing; the
+ * optional Stripe session id supports idempotent webhook handling.
+ */
 @Entity
 @Setter
 @Getter
@@ -13,6 +20,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "CREDIT_TRANSACTIONS")
+@EntityListeners(AuditingEntityListener.class)
 public class CreditTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,13 +42,9 @@ public class CreditTransaction {
     @Column(name = "stripe_session_id", unique = true)
     private String stripeSessionId;
 
-    @Column(name = "created_at", nullable = false)
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
 
     public enum TransactionType {
         PURCHASE,

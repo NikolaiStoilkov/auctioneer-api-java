@@ -13,10 +13,20 @@ import java.util.Collections;
 import java.util.List;
 
 
+/**
+ * Builds {@link User} entities from the various user-shaped inputs
+ * ({@link UserDto}, Spring Security {@link UserDetails}, sign-up form).
+ */
 @Component
 @RequiredArgsConstructor
 public class UserTransformer {
 
+    /**
+     * Builds a {@link User} from a {@link UserDto}.
+     *
+     * @param userDto the source DTO
+     * @return the mapped entity
+     */
     public User transform (UserDto userDto){
         User user = new User();
 
@@ -38,6 +48,13 @@ public class UserTransformer {
         return user;
     }
 
+    /**
+     * Builds a {@link User} from Spring Security {@link UserDetails},
+     * copying the username, password and first granted role.
+     *
+     * @param user the security principal
+     * @return the mapped entity
+     */
     public User transform(UserDetails user) {
         User transformedUser = new User();
         transformedUser.setUsername(user.getUsername());
@@ -55,6 +72,12 @@ public class UserTransformer {
         return transformedUser;
     }
 
+    /**
+     * Builds a {@link User} from a sign-up form.
+     *
+     * @param userAuthSignUpDto the sign-up form
+     * @return the mapped entity
+     */
     public User transform (UserAuthSignUpDto userAuthSignUpDto) {
         User user = new User();
 

@@ -8,32 +8,39 @@ import com.stripe.param.PaymentMethodAttachParams;
 import com.stripe.param.PaymentMethodCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import com.stripe.param.v2.core.AccountCreateParams;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
+/**
+ * Provisions a Stripe customer account and attaches a payment method to it.
+ * The Stripe secret is injected from configuration rather than passed in per
+ * call.
+ */
+@Service
+@RequiredArgsConstructor
 public class StripePaymentMethod {
-    private final String email;
-    private final String displayName;
-    private final String countryCode;
-    private final String currencyCode;
-    private final String stripeSecret;
 
-    public StripePaymentMethod(String email, String displayName, String countryCode, String currencyCode, String stripeSecret) {
-        this.email = email;
-        this.displayName = displayName;
-        this.countryCode = countryCode;
-        this.currencyCode = currencyCode;
-        this.stripeSecret = stripeSecret;
-    }
+    @Value("${stripe.secret}")
+    private String stripeSecret;
 
-    public PaymentMethod create() throws StripeException {
+    private final BuildStripeUserParams builder;
+
+    /**
+     * Creates a customer account and attaches a SEPA payment method to it.
+     *
+     * @param email        the customer email
+     * @param displayName  the customer display name
+     * @param countryCode  the ISO country code
+     * @param currencyCode the currency code for the setup session
+     * @return the attached payment method
+     * @throws StripeException if any Stripe call fails
+     */
+    public PaymentMethod create(String email, String displayName, String countryCode, String currencyCode)
+            throws StripeException {
         StripeClient client = new StripeClient(stripeSecret);
 
-        BuildStripeUserParams builder = new BuildStripeUserParams();
-
-        AccountCreateParams params = builder.buildAccountCreateParams(
-                email,
-                displayName,
-                countryCode
-        );
+        AccountCreateParams params = builder.buildAccountCreateParams(email, displayName, countryCode);
 
         Account account = client.v2()
                 .core()
@@ -42,16 +49,11 @@ public class StripePaymentMethod {
 
         String customerAccountId = account.getId();
 
-        SessionCreateParams sessionCreateParams = builder.buildSessionCreateParams(
-                currencyCode
-        );
-
+        SessionCreateParams sessionCreateParams = builder.buildSessionCreateParams(currencyCode);
         client.v1().checkout().sessions().create(sessionCreateParams);
 
-        PaymentMethodCreateParams paymentMethodCreateParams = builder.buildPaymentMethodCreateParams(
-                displayName,
-                email
-        );
+        PaymentMethodCreateParams paymentMethodCreateParams =
+                builder.buildPaymentMethodCreateParams(displayName, email);
 
         PaymentMethod paymentMethod = client.v1().paymentMethods().create(paymentMethodCreateParams);
 

@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * A user's shipping address (recipient name, phone and postal location).
+ */
 @Getter
 @Setter
 @Entity
