@@ -18,7 +18,7 @@ class ImageIntegrationTest extends IntegrationTestBase {
     };
 
     @Test
-    void uploadThenDownload_roundTripsBytesAndContentType() throws Exception {
+    void uploadThenDownloadRoundTripsBytesAndContentType() throws Exception {
         String token = signUpUniqueUser();
 
         MockMultipartFile file = new MockMultipartFile(
@@ -41,7 +41,7 @@ class ImageIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void upload_withoutToken_isRejected() throws Exception {
+    void uploadWithoutTokenIsRejected() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "pic.png", MediaType.IMAGE_PNG_VALUE, PNG_BYTES);
 
@@ -50,7 +50,7 @@ class ImageIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void download_unknownCode_returnsNotFound() throws Exception {
+    void downloadUnknownCodeReturnsNotFound() throws Exception {
         mockMvc.perform(get("/api/images/does-not-exist"))
                 .andExpect(status().isNotFound());
     }

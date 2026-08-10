@@ -30,7 +30,7 @@ class ShippingIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void saveShippingAddress_persistsIt() throws Exception {
+    void saveShippingAddressPersistsIt() throws Exception {
         String token = signUpUniqueUser();
 
         mockMvc.perform(post("/api/shipping")
@@ -45,7 +45,7 @@ class ShippingIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void getShippingAddress_returnsSavedAddress() throws Exception {
+    void getShippingAddressReturnsSavedAddress() throws Exception {
         String token = signUpUniqueUser();
         mockMvc.perform(post("/api/shipping")
                         .header("Authorization", bearer(token))
@@ -64,7 +64,7 @@ class ShippingIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void editShippingAddress_updatesFields() throws Exception {
+    void editShippingAddressUpdatesFields() throws Exception {
         String token = signUpUniqueUser();
         mockMvc.perform(post("/api/shipping")
                         .header("Authorization", bearer(token))
@@ -90,7 +90,7 @@ class ShippingIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void saveShippingAddress_invalidPayload_returnsValidationError() throws Exception {
+    void saveShippingAddressInvalidPayloadReturnsValidationError() throws Exception {
         String token = signUpUniqueUser();
         Map<String, Object> bad = shippingPayload("Dora", "not-a-phone");
 
@@ -102,7 +102,7 @@ class ShippingIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void getShippingAddress_unknownId_returnsNotFound() throws Exception {
+    void getShippingAddressUnknownIdReturnsNotFound() throws Exception {
         String token = signUpUniqueUser();
 
         mockMvc.perform(get("/api/shipping/999999")
@@ -111,7 +111,7 @@ class ShippingIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void shippingEndpoints_withoutToken_areRejected() throws Exception {
+    void shippingEndpointsWithoutTokenAreRejected() throws Exception {
         mockMvc.perform(get("/api/shipping/1"))
                 .andExpect(status().is4xxClientError());
 

@@ -15,26 +15,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class StripeIntegrationTest extends IntegrationTestBase {
 
     @Test
-    void config_isPublicAndReturnsPublishableKey() throws Exception {
+    void configIsPublicAndReturnsPublishableKey() throws Exception {
         mockMvc.perform(get("/api/stripe/config"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.publishableKey").value("pk_test_dummy"));
     }
 
     @Test
-    void setupIntent_withoutToken_isRejected() throws Exception {
+    void setupIntentWithoutTokenIsRejected() throws Exception {
         mockMvc.perform(post("/api/stripe/setup-intent"))
                 .andExpect(status().is4xxClientError());
     }
 
     @Test
-    void paymentMethods_withoutToken_isRejected() throws Exception {
+    void paymentMethodsWithoutTokenIsRejected() throws Exception {
         mockMvc.perform(get("/api/stripe/payment-methods"))
                 .andExpect(status().is4xxClientError());
     }
 
     @Test
-    void createPaymentIntent_withoutToken_isRejected() throws Exception {
+    void createPaymentIntentWithoutTokenIsRejected() throws Exception {
         mockMvc.perform(post("/api/wallet/create-payment-intent")
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .content("{\"amount\": 100}"))

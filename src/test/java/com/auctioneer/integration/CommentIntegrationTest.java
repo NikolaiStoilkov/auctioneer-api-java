@@ -35,7 +35,7 @@ class CommentIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void createComment_andReadItBackPublicly_withAuthorUsername() throws Exception {
+    void createCommentAndReadItBackPubliclyWithAuthorUsername() throws Exception {
         String token = signUpUniqueUser();
         Long userId = userIdFromToken(token);
         Long adId = createAd(token, adPayload("Commented Ad"));
@@ -51,7 +51,7 @@ class CommentIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void createComment_withoutToken_isRejected() throws Exception {
+    void createCommentWithoutTokenIsRejected() throws Exception {
         String token = signUpUniqueUser();
         Long adId = createAd(token, adPayload("Locked Ad"));
 
@@ -63,7 +63,7 @@ class CommentIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void createComment_blankContent_returnsValidationError() throws Exception {
+    void createCommentBlankContentReturnsValidationError() throws Exception {
         String token = signUpUniqueUser();
         Long adId = createAd(token, adPayload("Validation Ad"));
 
@@ -76,7 +76,7 @@ class CommentIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void editComment_updatesContentAndKeepsCreatedAt() throws Exception {
+    void editCommentUpdatesContentAndKeepsCreatedAt() throws Exception {
         String token = signUpUniqueUser();
         Long userId = userIdFromToken(token);
         Long adId = createAd(token, adPayload("Editable Ad"));
@@ -100,7 +100,7 @@ class CommentIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void deleteComment_removesIt() throws Exception {
+    void deleteCommentRemovesIt() throws Exception {
         String token = signUpUniqueUser();
         Long userId = userIdFromToken(token);
         Long adId = createAd(token, adPayload("Deletable Ad"));
@@ -116,7 +116,7 @@ class CommentIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void getComments_forAdWithoutComments_returnsEmptyList() throws Exception {
+    void getCommentsForAdWithoutCommentsReturnsEmptyList() throws Exception {
         String token = signUpUniqueUser();
         Long adId = createAd(token, adPayload("Silent Ad"));
 
