@@ -16,22 +16,47 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
     private final UserService userService;
 
+    /**
+     * Returns a user by id.
+     *
+     * @param id        the id of the user
+     * @param principal the authenticated user
+     * @return the user
+     */
     @GetMapping("/{id}")
     public UserDto get(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal) {
         return userService.get(id);
     }
 
-    @PostMapping("/save")
+    /**
+     * Creates a new user.
+     *
+     * @param userDto   the user to create
+     * @param principal the authenticated user
+     */
+    @PostMapping
     public void create(@Valid @RequestBody UserDto userDto, @AuthenticationPrincipal UserPrincipal principal) {
         userService.create(userDto);
     }
 
-    @PatchMapping("/edit")
+    /**
+     * Updates the authenticated user's profile.
+     *
+     * @param userDto   the new user data
+     * @param principal the authenticated user
+     */
+    @PatchMapping
     public void edit(@Valid @RequestBody UserDto userDto, @AuthenticationPrincipal UserPrincipal principal) {
         userService.edit(principal.getId(), userDto);
     }
 
-    @DeleteMapping("/request/delete/{id}")
+    /**
+     * Deletes a user by id.
+     *
+     * @param id        the id of the user to delete
+     * @param principal the authenticated user
+     */
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal) {
         userService.delete(id);
     }

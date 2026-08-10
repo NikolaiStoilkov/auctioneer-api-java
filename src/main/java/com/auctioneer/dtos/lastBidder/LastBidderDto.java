@@ -8,6 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/** A single entry in an ad's bid history (bidder, amount, timestamp). */
 public class LastBidderDto {
     @NotNull(message = "ID is required")
     private String id;

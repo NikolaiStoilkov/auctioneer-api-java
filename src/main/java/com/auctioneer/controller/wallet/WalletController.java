@@ -23,11 +23,25 @@ public class WalletController {
     private final WalletService walletService;
     private final StripeService stripeService;
 
+    /**
+     * Returns the authenticated user's wallet balance.
+     *
+     * @param principal the authenticated user
+     * @return the current balance
+     */
     @GetMapping("/balance")
     public BalanceDto getBalance(@AuthenticationPrincipal UserPrincipal principal) {
         return walletService.getBalance(principal.getId());
     }
 
+    /**
+     * Creates a Stripe payment intent for buying credits.
+     *
+     * @param request   the checkout request with the amount to charge
+     * @param principal the authenticated user
+     * @return a map containing the Stripe client secret
+     * @throws StripeException if the Stripe API call fails
+     */
     @PostMapping("/create-payment-intent")
     public Map<String, String> createPaymentIntent(
             @Valid @RequestBody CheckoutRequestDto request,
@@ -36,6 +50,13 @@ public class WalletController {
         return Map.of("clientSecret", clientSecret);
     }
 
+    /**
+     * Credits the user's wallet after a successful payment.
+     *
+     * @param request   the checkout request with the amount of credits
+     * @param principal the authenticated user
+     * @return the updated balance
+     */
     @PostMapping("/confirm-credits")
     public BalanceDto confirmCredits(
             @Valid @RequestBody CheckoutRequestDto request,
@@ -43,6 +64,13 @@ public class WalletController {
         return walletService.addCredits(principal.getId(), request.getAmount());
     }
 
+    /**
+     * Adds credits to the authenticated user's wallet.
+     *
+     * @param request   the checkout request with the amount of credits
+     * @param principal the authenticated user
+     * @return the updated balance
+     */
     @PostMapping("/add-credits")
     public BalanceDto addCredits(
             @Valid @RequestBody CheckoutRequestDto request,
@@ -50,6 +78,14 @@ public class WalletController {
         return walletService.addCredits(principal.getId(), request.getAmount());
     }
 
+    /**
+     * Returns a page of the authenticated user's credit transactions.
+     *
+     * @param page      the zero-based page index
+     * @param size      the page size
+     * @param principal the authenticated user
+     * @return the requested page of transactions
+     */
     @GetMapping("/transactions")
     public Page<CreditTransactionDto> getTransactions(
             @RequestParam(defaultValue = "0") int page,

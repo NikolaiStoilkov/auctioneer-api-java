@@ -7,6 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+/** Authenticated principal stored in the security context, carrying the user id. */
 public class UserPrincipal {
     private Long id;
 }

@@ -6,6 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/** Login form carrying a username and password. */
 public class UserAuthSignInDto {
     @NotBlank(message = "Username is required")
     private String username;

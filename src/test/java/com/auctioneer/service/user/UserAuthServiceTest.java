@@ -1,5 +1,8 @@
 package com.auctioneer.service.user;
 
+import com.auctioneer.exceptions.EmailAlreadyExistsException;
+import com.auctioneer.exceptions.UserNotFoundException;
+import com.auctioneer.exceptions.UsernameAlreadyExistsException;
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.forms.UserAuthSignInDto;
 import com.auctioneer.dtos.forms.UserAuthSignUpDto;
@@ -100,7 +103,7 @@ class UserAuthServiceTest {
     void signUpShouldThrowWhenUsernameAlreadyExists() {
         when(userRepository.existsUserByUsername("john_doe")).thenReturn(true);
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        UsernameAlreadyExistsException ex = assertThrows(UsernameAlreadyExistsException.class,
                 () -> userAuthService.signUp(signUpDto));
 
         assertEquals("Username already exists", ex.getMessage());
@@ -113,7 +116,7 @@ class UserAuthServiceTest {
         when(userRepository.existsUserByUsername("john_doe")).thenReturn(false);
         when(userRepository.existsUserByEmail("john@example.com")).thenReturn(true);
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        EmailAlreadyExistsException ex = assertThrows(EmailAlreadyExistsException.class,
                 () -> userAuthService.signUp(signUpDto));
 
         assertEquals("Email already exists", ex.getMessage());
@@ -156,10 +159,10 @@ class UserAuthServiceTest {
     void signInShouldThrowWhenUserNotFound() {
         when(userRepository.findUserByUsername("john_doe")).thenReturn(null);
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
                 () -> userAuthService.signIn(signInDto));
 
-        assertEquals("User not found", ex.getMessage());
+        assertEquals("User not found: john_doe", ex.getMessage());
         verify(passwordEncoder, never()).matches(anyString(), anyString());
         verify(authenticationService, never()).authorize(anyLong(), anyBoolean(), anyMap());
     }

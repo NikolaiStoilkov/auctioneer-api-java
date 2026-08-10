@@ -1,6 +1,8 @@
 package com.auctioneer.service.discordNotifications;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -8,6 +10,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+/**
+ * Posts notifications to Discord via incoming webhooks. Every send runs
+ * asynchronously on the virtual-thread notification executor, so a slow or
+ * unreachable webhook never blocks the request thread.
+ */
+@Slf4j
 @Service
 public class DiscordService {
 
@@ -42,18 +50,31 @@ public class DiscordService {
                     .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                     .build();
 
-            client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .thenAccept(response ->
-                            System.out.println("Discord [" + webhookUrl + "] -> " + response.statusCode()));
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            log.debug("Discord webhook responded with status {}", response.statusCode());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Discord notification interrupted", e);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Failed to send Discord notification", e);
         }
     }
 
+    @Async("notificationExecutor")
     public void sendAdNotification(String message)      { send(adsWebhook, message); }
+
+    @Async("notificationExecutor")
     public void sendBidNotification(String message)     { send(bidsWebhook, message); }
+
+    @Async("notificationExecutor")
     public void sendCommentNotification(String message) { send(commentsWebhook, message); }
+
+    @Async("notificationExecutor")
     public void sendUserNotification(String message)    { send(usersWebhook, message); }
+
+    @Async("notificationExecutor")
     public void sendWalletNotification(String message)  { send(walletWebhook, message); }
+
+    @Async("notificationExecutor")
     public void sendStripeNotification(String message)  { send(stripeWebhook, message); }
 }

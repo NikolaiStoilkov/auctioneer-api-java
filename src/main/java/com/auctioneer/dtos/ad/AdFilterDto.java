@@ -7,6 +7,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
+/** Query parameters for paginated, filtered ad listings. */
 public class AdFilterDto {
     private Boolean active;
     private LocalDate dateFrom;

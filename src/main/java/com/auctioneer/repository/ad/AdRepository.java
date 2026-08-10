@@ -2,15 +2,17 @@ package com.auctioneer.repository.ad;
 
 import com.auctioneer.domain.entities.Ad;
 import com.auctioneer.domain.entities.Status;
-import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
+/**
+ * Data access for {@link Ad}. Concurrency is handled by the {@code @Version}
+ * column on the entity (optimistic locking), so no pessimistic lock query is
+ * needed.
+ */
 @Repository
 public interface AdRepository extends JpaRepository<Ad, Long> {
 
@@ -18,7 +20,5 @@ public interface AdRepository extends JpaRepository<Ad, Long> {
 
     List<Ad> findAdByStatus(Status status);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT a FROM Ad a WHERE a.id = :id")
-    Optional<Ad> findByIdForUpdate(Long id);
+    List<Ad> findAdByIsActiveTrueAndEndDateBefore(LocalDate date);
 }

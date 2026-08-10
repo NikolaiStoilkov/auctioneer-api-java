@@ -1,7 +1,8 @@
 package com.auctioneer.controller.ad;
 
-import com.auctioneer.dtos.ad.AdDto;
 import com.auctioneer.dtos.ad.AdFilterDto;
+import com.auctioneer.dtos.ad.AdRequestDto;
+import com.auctioneer.dtos.ad.AdResponseDto;
 import com.auctioneer.dtos.ad.BidDto;
 import com.auctioneer.dtos.ad.BidResponseDto;
 import com.auctioneer.dtos.user.UserPrincipal;
@@ -22,47 +23,104 @@ public class AdController {
     private final AdService adService;
     private final BidSseService bidSseService;
 
+    /**
+     * Returns a single ad by its id.
+     *
+     * @param id the id of the ad
+     * @return the ad
+     */
     @GetMapping("/{id}")
-    public AdDto get(@PathVariable Long id) {
+    public AdResponseDto get(@PathVariable Long id) {
         return adService.get(id);
     }
 
+    /**
+     * Returns all ads created by the authenticated user.
+     *
+     * @param principal the authenticated user
+     * @return the user's ads
+     */
     @GetMapping("/my-ads")
-    public List<AdDto> getMyAds(@AuthenticationPrincipal UserPrincipal principal) {
+    public List<AdResponseDto> getMyAds(@AuthenticationPrincipal UserPrincipal principal) {
         return adService.getMyAds(principal.getId());
     }
 
-    @PostMapping("/create")
-    public void create(@Valid @RequestBody AdDto ad, @AuthenticationPrincipal UserPrincipal principal) {
+    /**
+     * Creates a new ad owned by the authenticated user.
+     *
+     * @param ad        the ad to create
+     * @param principal the authenticated user
+     */
+    @PostMapping
+    public void create(@Valid @RequestBody AdRequestDto ad, @AuthenticationPrincipal UserPrincipal principal) {
         adService.create(ad, principal.getId());
     }
 
-    @PostMapping("/edit/{adId}")
-    public void edit(@PathVariable Long adId, @Valid @RequestBody AdDto ad) {
+    /**
+     * Updates an existing ad.
+     *
+     * @param adId the id of the ad to update
+     * @param ad   the new ad data
+     */
+    @PutMapping("/{adId}")
+    public void edit(@PathVariable Long adId, @Valid @RequestBody AdRequestDto ad) {
         adService.edit(adId, ad);
     }
 
-    /** Bid – the request body must contain the bid amount. */
-    @PostMapping("/bid/{adId}")
+    /**
+     * Places a bid on an ad – the request body must contain the bid amount.
+     *
+     * @param adId      the id of the ad to bid on
+     * @param bidDto    the bid, including the amount
+     * @param principal the authenticated user placing the bid
+     * @return the result of the bid
+     */
+    @PostMapping("/{adId}/bids")
     public BidResponseDto bid(@PathVariable Long adId, @Valid @RequestBody BidDto bidDto,
                               @AuthenticationPrincipal UserPrincipal principal) {
         return adService.bid(adId, principal.getId(), bidDto);
     }
 
-    /** SSE per-ad live bid stream. */
+    /**
+     * SSE per-ad live bid stream.
+     *
+     * @param adId the id of the ad to stream bids for
+     * @return an emitter that pushes bid events for the ad
+     */
     @GetMapping(value = "/{adId}/stream", produces = "text/event-stream")
     public SseEmitter stream(@PathVariable Long adId) {
         return bidSseService.subscribe(adId);
     }
 
-    /** SSE global stream – broadcasts every bid across all ads. */
+    /**
+     * SSE global stream – broadcasts every bid across all ads.
+     *
+     * @return an emitter that pushes every bid event
+     */
     @GetMapping(value = "/stream", produces = "text/event-stream")
     public SseEmitter globalStream() {
         return bidSseService.subscribeGlobal();
     }
 
+    /**
+     * Returns a page of ads matching the given filter.
+     *
+     * @param filter paging and filtering criteria
+     * @return the matching ads
+     */
     @GetMapping("/pagination")
-    public List<AdDto> getAdsByPagination(@ModelAttribute AdFilterDto filter) {
+    public List<AdResponseDto> getAdsByPagination(@ModelAttribute AdFilterDto filter) {
         return adService.pagination(filter);
+    }
+
+    /**
+     * Pub/sub push endpoint — closes all active ads whose end date is in the past.
+     * Also triggered internally by the daily 01:00 AM scheduler.
+     *
+     * @return the number of ads that were closed
+     */
+    @PostMapping("/close-expired")
+    public int closeExpiredAds() {
+        return adService.closeExpiredAds();
     }
 }

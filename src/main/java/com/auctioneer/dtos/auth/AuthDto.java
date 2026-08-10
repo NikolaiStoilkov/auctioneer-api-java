@@ -7,6 +7,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
+/** Authentication payload exchanged during the auth flow. */
 public class AuthDto {
     private UserDto user;
     private String token;

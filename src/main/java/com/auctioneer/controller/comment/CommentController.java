@@ -14,22 +14,43 @@ import java.util.List;
 public class CommentController {
     private final CommentService commentService;
 
+    /**
+     * Returns all comments on an ad.
+     *
+     * @param adId the id of the ad
+     * @return the ad's comments
+     */
     @GetMapping("/{adId}")
     public List<CommentDto> getComments(@PathVariable Long adId) {
         return commentService.getAll(adId);
     }
 
-    @PostMapping("/create/{adId}")
+    /**
+     * Creates a new comment.
+     *
+     * @param commentDto the comment to create
+     */
+    @PostMapping
     public void create(@Valid @RequestBody CommentDto commentDto) {
         commentService.create(commentDto);
     }
 
-    @PutMapping("/edit")
+    /**
+     * Updates an existing comment.
+     *
+     * @param commentDto the new comment data, including the comment id
+     */
+    @PutMapping
     public void edit(@Valid @RequestBody CommentDto commentDto) {
         commentService.edit(commentDto);
     }
 
-    @DeleteMapping("/delete/{id}")
+    /**
+     * Deletes a comment.
+     *
+     * @param id the id of the comment to delete
+     */
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         commentService.delete(id);
     }

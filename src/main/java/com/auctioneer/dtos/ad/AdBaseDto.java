@@ -1,11 +1,9 @@
 package com.auctioneer.dtos.ad;
 
-import com.auctioneer.domain.entities.LastBidder;
 import com.auctioneer.domain.entities.Status;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,10 +12,15 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Common ad fields shared by both the request and the response DTO.
+ * Deliberately carries no id, author, or bid state — those are either
+ * server-assigned ({@link AdResponseDto}) or must never be accepted
+ * from the client ({@link AdRequestDto}).
+ */
 @Getter
 @Setter
-public class AdDto {
-    private Long id;
+public abstract class AdBaseDto {
 
     @NotBlank(message = "Title is required")
     @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
@@ -37,13 +40,6 @@ public class AdDto {
     @Positive(message = "Starting bid price must be positive")
     private BigDecimal startingBidPrice;
 
-    @PositiveOrZero(message = "Current bid price must be zero or positive")
-    private BigDecimal currentBidPrice;
-
-    private Long authorId;
-
-    private List<LastBidder> lastBidders;
-
     @NotBlank(message = "Location is required")
     private String location;
 
@@ -54,4 +50,6 @@ public class AdDto {
     private Boolean isActive;
 
     private LocalDate startingDate;
+
+    private LocalDate endDate;
 }

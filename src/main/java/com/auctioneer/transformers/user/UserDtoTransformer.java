@@ -6,9 +6,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+/**
+ * Builds {@link UserDto} instances from a {@link User} entity or a Spring
+ * Security {@link UserDetails}.
+ */
 @Component
 @RequiredArgsConstructor
 public class UserDtoTransformer {
+    /**
+     * Maps a {@link User} entity to a {@link UserDto}.
+     *
+     * @param user the source entity
+     * @return the mapped DTO
+     */
     public UserDto transform(User user) {
         UserDto userDto = new UserDto();
 
@@ -31,6 +41,13 @@ public class UserDtoTransformer {
         return userDto;
     }
 
+    /**
+     * Maps a Spring Security {@link UserDetails} to a {@link UserDto},
+     * copying the username and password only.
+     *
+     * @param userDetails the security principal
+     * @return the mapped DTO
+     */
     public UserDto transform (UserDetails userDetails){
         UserDto userDto = new UserDto();
 

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
+/** API representation of a wallet ledger entry. */
 public class CreditTransactionDto {
     private Long id;
     private BigDecimal amount;

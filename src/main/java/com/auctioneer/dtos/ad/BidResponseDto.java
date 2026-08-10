@@ -9,6 +9,11 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+/**
+ * Response returned after a successful bid. The {@code timestamp} is always
+ * supplied explicitly by the service from a single shared {@link Instant},
+ * so there is no per-instantiation default here.
+ */
 @Getter
 @Setter
 @Builder
@@ -20,7 +25,6 @@ public class BidResponseDto {
     private BigDecimal nextMinimumBid;
     private String latestBidderUsername;
     private Long latestBidderUserId;
-    @Builder.Default
-    private Instant timestamp = Instant.now();
+    private Instant timestamp;
 }
 

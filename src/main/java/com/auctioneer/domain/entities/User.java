@@ -9,6 +9,10 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * A registered user: personal/address details, credentials, roles, wallet
+ * balance/credits, and the linked Stripe customer id.
+ */
 @Entity
 @Setter
 @Getter

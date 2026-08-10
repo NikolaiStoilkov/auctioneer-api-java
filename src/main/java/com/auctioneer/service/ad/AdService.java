@@ -4,11 +4,15 @@ import com.auctioneer.domain.entities.Ad;
 import com.auctioneer.domain.entities.LastBidder;
 import com.auctioneer.domain.entities.Status;
 import com.auctioneer.domain.entities.User;
-import com.auctioneer.dtos.ad.AdDto;
 import com.auctioneer.dtos.ad.AdFilterDto;
+import com.auctioneer.dtos.ad.AdRequestDto;
+import com.auctioneer.dtos.ad.AdResponseDto;
 import com.auctioneer.dtos.ad.BidDto;
 import com.auctioneer.dtos.ad.BidResponseDto;
 import com.auctioneer.dtos.user.UserNotificationDto;
+import com.auctioneer.exceptions.AdNotFoundException;
+import com.auctioneer.exceptions.InvalidBidException;
+import com.auctioneer.exceptions.UserNotFoundException;
 import com.auctioneer.repository.ad.AdRepository;
 import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.service.discordNotifications.DiscordService;
@@ -37,7 +41,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AdService {
-
     private final AdRepository adRepository;
     private final UserRepository userRepository;
     private final EntityManager entityManager;
@@ -46,14 +49,29 @@ public class AdService {
     private final WalletService walletService;
     private final DiscordService discordService;
 
-    public AdDto get(Long adId) {
-        Ad ad = adRepository.findById(adId).orElseThrow();
-        AdDto adDto = new AdDto();
+    /**
+     * Returns a single ad by id.
+     *
+     * @param adId the id of the ad
+     * @return the ad
+     * @throws AdNotFoundException if no ad exists with the given id
+     */
+    public AdResponseDto get(Long adId) {
+        Ad ad = adRepository.findById(adId)
+                .orElseThrow(() -> new AdNotFoundException(adId));
+        AdResponseDto adDto = new AdResponseDto();
         BeanUtils.copyProperties(ad, adDto);
         return adDto;
     }
 
-    public void create(AdDto adDto, Long userId) {
+    /**
+     * Creates a new ad owned by the given user, defaulting bid price,
+     * status, activity flag and starting date when absent.
+     *
+     * @param adDto  the ad payload
+     * @param userId the id of the authenticated author
+     */
+    public void create(AdRequestDto adDto, Long userId) {
         Ad ad = new Ad();
 
         BeanUtils.copyProperties(adDto, ad);
@@ -80,12 +98,18 @@ public class AdService {
         discordService.sendAdNotification("🆕 New ad created: **" + ad.getTitle() + "** by user " + userId);
     }
 
-    public List<AdDto> getMyAds(Long authorId) {
+    /**
+     * Returns all ads created by the given author.
+     *
+     * @param authorId the id of the author
+     * @return the author's ads
+     */
+    public List<AdResponseDto> getMyAds(Long authorId) {
         List<Ad> ads = adRepository.findAdByAuthorId(authorId);
-        List<AdDto> result = new ArrayList<>();
+        List<AdResponseDto> result = new ArrayList<>();
 
         for (Ad ad : ads) {
-            AdDto dto = new AdDto();
+            AdResponseDto dto = new AdResponseDto();
             BeanUtils.copyProperties(ad, dto);
             result.add(dto);
         }
@@ -93,11 +117,21 @@ public class AdService {
         return result;
     }
 
-    public void edit(Long adId, AdDto adDto) {
+    /**
+     * Updates an existing ad with the given payload. Author and bid state
+     * are never overwritten from the client.
+     *
+     * @param adId  the id of the ad to update
+     * @param adDto the new ad data
+     * @throws AdNotFoundException if no ad exists with the given id
+     */
+    public void edit(Long adId, AdRequestDto adDto) {
         Ad existingAd = adRepository.findById(adId)
-                .orElseThrow(() -> new IllegalArgumentException("Ad not found: " + adId));
+                .orElseThrow(() -> new AdNotFoundException(adId));
 
-        BeanUtils.copyProperties(adDto, existingAd, "id");
+        // authorId must not be reassigned from the client, and lastBidders is an
+        // orphan-removal collection Hibernate does not allow to be replaced
+        BeanUtils.copyProperties(adDto, existingAd, "id", "authorId", "lastBidders");
 
         adRepository.save(existingAd);
         discordService.sendAdNotification("✏️ Ad edited (ID: " + adId + "): **" + existingAd.getTitle() + "**");
@@ -109,13 +143,14 @@ public class AdService {
     @Transactional
     public BidResponseDto bid(Long adId, Long userId, BidDto bidDto) {
         Ad ad = adRepository.findById(adId)
-                .orElseThrow(() -> new IllegalArgumentException("Ad not found: " + adId));
+                .orElseThrow(() -> new AdNotFoundException(adId));
+
 
         User bidder = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         if (ad.getAuthorId() != null && ad.getAuthorId().equals(userId)) {
-            throw new IllegalArgumentException("You cannot bid on your own ad");
+            throw InvalidBidException.ownAdBid();
         }
 
         BigDecimal bidAmount = (bidDto.getAmount() != null)
@@ -123,7 +158,7 @@ public class AdService {
                 : ad.getCurrentBidPrice().add(ad.getBidStep());
 
         if (bidAmount.compareTo(ad.getCurrentBidPrice()) <= 0) {
-            throw new IllegalArgumentException("Bid amount must be higher than current bid price");
+            throw InvalidBidException.bidTooLow();
         }
 
         // Snapshot previous state before any mutation
@@ -148,7 +183,10 @@ public class AdService {
         record.setTimestamp(OffsetDateTime.now(ZoneOffset.UTC));
         ad.getLastBidders().add(record);
 
-        String nowStr = Instant.now().toString();
+        // One shared timestamp per bid — a single Instant.now() call reused by
+        // both SSE notifications and the bid response
+        Instant now = Instant.now();
+        String nowStr = now.toString();
 
         // Notify the previous highest bidder that they were outbid
         if (previousBidderUserId != null && !previousBidderUserId.equals(userId)) {
@@ -185,7 +223,7 @@ public class AdService {
                 .nextMinimumBid(bidAmount.add(ad.getBidStep()))
                 .latestBidderUsername(bidder.getUsername())
                 .latestBidderUserId(userId)
-                .timestamp(Instant.now())
+                .timestamp(now)
                 .build();
 
         bidSseService.broadcast(adId, response);
@@ -202,7 +240,38 @@ public class AdService {
         discordService.sendAdNotification("🔄 Scheduled status update ran — " + ads.size() + " ads reactivated");
     }
 
-    public List<AdDto> pagination(AdFilterDto filter) {
+    /**
+     * Closes all active ads whose end date is in the past.
+     * Ads get the CLOSED status so the daily reactivation job (which flips
+     * INACTIVE ads back to ACTIVE) does not reopen them.
+     *
+     * @return the number of ads that were closed
+     */
+    @Transactional
+    public int closeExpiredAds() {
+        List<Ad> expiredAds = adRepository.findAdByIsActiveTrueAndEndDateBefore(LocalDate.now());
+
+        for (Ad ad : expiredAds) {
+            ad.setIsActive(false);
+            ad.setStatus(Status.CLOSED);
+        }
+
+        adRepository.saveAll(expiredAds);
+
+        if (!expiredAds.isEmpty()) {
+            discordService.sendAdNotification("🔒 Scheduled close ran — " + expiredAds.size() + " expired ads closed");
+        }
+
+        return expiredAds.size();
+    }
+
+    /**
+     * Returns a page of ads matching the given filter.
+     *
+     * @param filter paging and filtering criteria
+     * @return the matching ads
+     */
+    public List<AdResponseDto> pagination(AdFilterDto filter) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Ad> cq = cb.createQuery(Ad.class);
         Root<Ad> root = cq.from(Ad.class);
@@ -225,9 +294,9 @@ public class AdService {
         query.setFirstResult((filter.getPage() - 1) * filter.getSize());
         query.setMaxResults(filter.getSize());
 
-        List<AdDto> result = new ArrayList<>();
+        List<AdResponseDto> result = new ArrayList<>();
         for (Ad ad : query.getResultList()) {
-            AdDto dto = new AdDto();
+            AdResponseDto dto = new AdResponseDto();
             BeanUtils.copyProperties(ad, dto);
             result.add(dto);
         }

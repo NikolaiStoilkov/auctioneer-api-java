@@ -88,7 +88,7 @@ class ShippingServiceTest {
                 () -> shippingService.get(99L)
         );
 
-        assertEquals("Shipping address not found for user id: 99", exception.getMessage());
+        assertEquals("Shipping address not found: 99", exception.getMessage());
         verify(shippingRepository).findById(99L);
     }
 
@@ -134,7 +134,7 @@ class ShippingServiceTest {
                 () -> shippingService.edit(sampleShippingAddressDto, 99L)
         );
 
-        assertEquals("Shipping address not found with id: 99", exception.getMessage());
+        assertEquals("Shipping address not found: 99", exception.getMessage());
         verify(shippingRepository).findById(99L);
         verify(shippingRepository, never()).save(any(ShippingAddress.class));
     }

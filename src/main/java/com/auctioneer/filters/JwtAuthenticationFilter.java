@@ -22,6 +22,13 @@ import java.io.IOException;
 import java.util.List;
 
 
+/**
+ * Authenticates requests carrying a {@code Bearer} JWT. On a valid,
+ * non-expired token it populates the {@link SecurityContextHolder} with a
+ * {@link UserPrincipal} and the roles from the token; invalid tokens simply
+ * leave the context unauthenticated. Public/streaming paths are skipped via
+ * {@link #shouldNotFilter}.
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

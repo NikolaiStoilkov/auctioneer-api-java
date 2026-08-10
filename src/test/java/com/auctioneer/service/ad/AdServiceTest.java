@@ -3,7 +3,8 @@ package com.auctioneer.service.ad;
 import com.auctioneer.domain.entities.Ad;
 import com.auctioneer.domain.entities.LastBidder;
 import com.auctioneer.domain.entities.User;
-import com.auctioneer.dtos.ad.AdDto;
+import com.auctioneer.dtos.ad.AdRequestDto;
+import com.auctioneer.dtos.ad.AdResponseDto;
 import com.auctioneer.dtos.ad.BidDto;
 import com.auctioneer.repository.ad.AdRepository;
 import com.auctioneer.repository.user.UserRepository;
@@ -22,7 +23,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
+import com.auctioneer.exceptions.AdNotFoundException;
+import com.auctioneer.exceptions.InvalidBidException;
+import com.auctioneer.exceptions.UserNotFoundException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,7 +57,7 @@ class AdServiceTest {
     private AdService adService;
 
     private Ad sampleAd;
-    private AdDto sampleAdDto;
+    private AdRequestDto sampleAdDto;
     private User sampleUser;
 
     @BeforeEach
@@ -66,16 +69,16 @@ class AdServiceTest {
         sampleAd.setBidStep(new BigDecimal("10.00"));
         sampleAd.setStartingBidPrice(new BigDecimal("100.00"));
         sampleAd.setCurrentBidPrice(new BigDecimal("100.00"));
-        sampleAd.setAuthorId(1L);
+        // Author must differ from the bidding user (id 1) — bidding on your own ad is rejected
+        sampleAd.setAuthorId(2L);
         sampleAd.setLocation("Sofia");
         sampleAd.setLastBidders(new ArrayList<>());
 
-        sampleAdDto = new AdDto();
+        sampleAdDto = new AdRequestDto();
         sampleAdDto.setTitle("Test Ad");
         sampleAdDto.setDescription("A test ad description for testing");
         sampleAdDto.setBidStep(new BigDecimal("10.00"));
         sampleAdDto.setStartingBidPrice(new BigDecimal("100.00"));
-        sampleAdDto.setCurrentBidPrice(new BigDecimal("100.00"));
         sampleAdDto.setLocation("Sofia");
 
         sampleUser = User.builder()
@@ -94,7 +97,7 @@ class AdServiceTest {
     void getShouldReturnAdDtoWhenAdExists() {
         when(adRepository.findById(1L)).thenReturn(Optional.of(sampleAd));
 
-        AdDto result = adService.get(1L);
+        AdResponseDto result = adService.get(1L);
 
         assertNotNull(result);
         assertEquals("Test Ad", result.getTitle());
@@ -108,7 +111,7 @@ class AdServiceTest {
     void getShouldThrowExceptionWhenAdDoesNotExist() {
         when(adRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> adService.get(99L));
+        assertThrows(AdNotFoundException.class, () -> adService.get(99L));
         verify(adRepository).findById(99L);
     }
 
@@ -126,7 +129,7 @@ class AdServiceTest {
         List<Ad> ads = List.of(sampleAd);
         when(adRepository.findAdByAuthorId(1L)).thenReturn(ads);
 
-        List<AdDto> result = adService.getMyAds(1L);
+        List<AdResponseDto> result = adService.getMyAds(1L);
 
         assertNotNull(result);
         verify(adRepository).findAdByAuthorId(1L);
@@ -167,8 +170,8 @@ class AdServiceTest {
         when(adRepository.findById(1L)).thenReturn(Optional.of(sampleAd));
         when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        InvalidBidException exception = assertThrows(
+                InvalidBidException.class,
                 () -> adService.bid(1L, 1L, bidDto)
         );
 
@@ -184,7 +187,7 @@ class AdServiceTest {
         when(adRepository.findById(1L)).thenReturn(Optional.of(sampleAd));
         when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
 
-        assertThrows(IllegalArgumentException.class, () -> adService.bid(1L, 1L, bidDto));
+        assertThrows(InvalidBidException.class, () -> adService.bid(1L, 1L, bidDto));
         verify(adRepository, never()).save(any(Ad.class));
     }
 
@@ -195,7 +198,7 @@ class AdServiceTest {
 
         when(adRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> adService.bid(99L, 1L, bidDto));
+        assertThrows(AdNotFoundException.class, () -> adService.bid(99L, 1L, bidDto));
     }
 
     @Test
@@ -206,6 +209,6 @@ class AdServiceTest {
         when(adRepository.findById(1L)).thenReturn(Optional.of(sampleAd));
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> adService.bid(1L, 99L, bidDto));
+        assertThrows(UserNotFoundException.class, () -> adService.bid(1L, 99L, bidDto));
     }
 }

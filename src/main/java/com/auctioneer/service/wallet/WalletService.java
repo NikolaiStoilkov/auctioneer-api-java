@@ -4,6 +4,8 @@ import com.auctioneer.domain.entities.CreditTransaction;
 import com.auctioneer.domain.entities.User;
 import com.auctioneer.dtos.wallet.BalanceDto;
 import com.auctioneer.dtos.wallet.CreditTransactionDto;
+import com.auctioneer.exceptions.InsufficientBalanceException;
+import com.auctioneer.exceptions.UserNotFoundException;
 import com.auctioneer.repository.user.UserRepository;
 import com.auctioneer.repository.wallet.CreditTransactionRepository;
 import com.auctioneer.service.discordNotifications.DiscordService;
@@ -14,8 +16,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.NoSuchElementException;
 
+/**
+ * Manages user wallet balances and the credit-transaction ledger. Every
+ * balance change (purchase, debit, refund) is recorded as a
+ * {@link CreditTransaction} and announced via Discord.
+ */
 @Service
 @RequiredArgsConstructor
 public class WalletService {
@@ -24,13 +30,30 @@ public class WalletService {
     private final CreditTransactionRepository creditTransactionRepository;
     private final DiscordService discordService;
 
+    /**
+     * Returns the current balance and credit totals for a user.
+     *
+     * @param userId the id of the user
+     * @return the balance and credits
+     * @throws UserNotFoundException if the user does not exist
+     */
     public BalanceDto getBalance(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         return new BalanceDto(user.getBalance(), user.getCredits());
     }
 
+    /**
+     * Adds purchased credits to a user's balance and records a PURCHASE
+     * transaction.
+     *
+     * @param userId the id of the user
+     * @param amount the amount to add (minimum 1.00)
+     * @return the updated balance and credits
+     * @throws IllegalArgumentException if the amount is below the minimum
+     * @throws UserNotFoundException    if the user does not exist
+     */
     @Transactional
     public BalanceDto addCredits(Long userId, BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ONE) < 0) {
@@ -38,7 +61,7 @@ public class WalletService {
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         user.setCredits(user.getCredits().add(amount));
         user.setBalance(user.getBalance().add(amount));
@@ -57,13 +80,22 @@ public class WalletService {
         return new BalanceDto(user.getBalance(), user.getCredits());
     }
 
+    /**
+     * Deducts an amount from a user's balance and records a DEBIT transaction.
+     *
+     * @param userId      the id of the user
+     * @param amount      the amount to deduct
+     * @param description a human-readable description of the debit
+     * @throws InsufficientBalanceException if the balance is too low
+     * @throws UserNotFoundException        if the user does not exist
+     */
     @Transactional
     public void debit(Long userId, BigDecimal amount, String description) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         if (user.getBalance().compareTo(amount) < 0) {
-            throw new IllegalArgumentException("Insufficient balance to place bid");
+            throw new InsufficientBalanceException();
         }
 
         user.setBalance(user.getBalance().subtract(amount));
@@ -78,10 +110,19 @@ public class WalletService {
         discordService.sendWalletNotification("💸 User " + userId + " debited **" + amount + "** — " + description);
     }
 
+    /**
+     * Returns an amount to a user's balance and records a REFUND transaction
+     * (used when a bidder is outbid).
+     *
+     * @param userId      the id of the user
+     * @param amount      the amount to refund
+     * @param description a human-readable description of the refund
+     * @throws UserNotFoundException if the user does not exist
+     */
     @Transactional
     public void refund(Long userId, BigDecimal amount, String description) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         user.setBalance(user.getBalance().add(amount));
         user.setCredits(user.getCredits().add(amount));
@@ -95,6 +136,14 @@ public class WalletService {
         discordService.sendWalletNotification("♻️ User " + userId + " refunded **" + amount + "** — " + description);
     }
 
+    /**
+     * Returns a page of the user's credit transactions, newest first.
+     *
+     * @param userId the id of the user
+     * @param page   the zero-based page index
+     * @param size   the page size
+     * @return the page of transactions
+     */
     public Page<CreditTransactionDto> getTransactions(Long userId, int page, int size) {
         return creditTransactionRepository
                 .findAllByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(page, size))

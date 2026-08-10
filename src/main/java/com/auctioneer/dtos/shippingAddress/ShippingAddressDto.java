@@ -8,6 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+/** API representation of a user's shipping address. */
 public class ShippingAddressDto {
     @NotBlank(message = "First name is required")
     @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")

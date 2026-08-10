@@ -13,10 +13,20 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Adapts a {@link User} entity or {@link UserDto} into a Spring Security
+ * {@link UserDetails} for authentication. Account flags are always active.
+ */
 @Component
 @RequiredArgsConstructor
 public class UserDetailsTransformer {
 
+    /**
+     * Adapts a {@link User} entity into a {@link UserDetails}.
+     *
+     * @param user the source entity
+     * @return the security principal
+     */
     public UserDetails transform(User user) {
         return new UserDetails() {
             @Override
@@ -60,6 +70,12 @@ public class UserDetailsTransformer {
         };
     }
 
+    /**
+     * Adapts a {@link UserDto} into a {@link UserDetails}.
+     *
+     * @param userDto the source DTO
+     * @return the security principal
+     */
     public UserDetails  transform (UserDto userDto) {
         return new UserDetails() {
             @Override
