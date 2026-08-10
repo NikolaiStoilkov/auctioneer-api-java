@@ -1,11 +1,13 @@
 package com.auctioneer;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
-@Disabled("Requires full application context with database and environment variables")
+@ActiveProfiles("test")
+@TestPropertySource(locations = "classpath:application-test.properties")
 class AuctioneerApplicationTests {
     @Test
     void contextLoads() {

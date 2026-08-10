@@ -38,7 +38,7 @@ class UserIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void getUser_returnsProfile() throws Exception {
+    void getUserReturnsProfile() throws Exception {
         String token = signUpUniqueUser();
         Long userId = userIdFromToken(token);
         String username = userRepository.findById(userId).get().getUsername();
@@ -52,7 +52,7 @@ class UserIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void getUser_withoutToken_isRejected() throws Exception {
+    void getUserWithoutTokenIsRejected() throws Exception {
         String token = signUpUniqueUser();
 
         mockMvc.perform(get("/api/users/" + userIdFromToken(token)))
@@ -60,7 +60,7 @@ class UserIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void editUser_updatesOwnProfile() throws Exception {
+    void editUserUpdatesOwnProfile() throws Exception {
         String token = signUpUniqueUser();
         Long userId = userIdFromToken(token);
         var existing = userRepository.findById(userId).get();
@@ -82,7 +82,7 @@ class UserIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void editUser_invalidPayload_returnsValidationError() throws Exception {
+    void editUserInvalidPayloadReturnsValidationError() throws Exception {
         String token = signUpUniqueUser();
 
         mockMvc.perform(patch("/api/users")
@@ -93,7 +93,7 @@ class UserIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void saveUser_createsNewUser() throws Exception {
+    void saveUserCreatesNewUser() throws Exception {
         String token = signUpUniqueUser();
         long before = userRepository.count();
 
@@ -109,7 +109,7 @@ class UserIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void deleteUser_removesAccount() throws Exception {
+    void deleteUserRemovesAccount() throws Exception {
         String token = signUpUniqueUser();
         Long userId = userIdFromToken(token);
 

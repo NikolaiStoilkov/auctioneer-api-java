@@ -12,13 +12,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class AdIntegrationTest extends IntegrationTestBase {
 
     @Test
-    void createAd_appliesDefaultsAndPersists() throws Exception {
+    void createAdAppliesDefaultsAndPersists() throws Exception {
         String token = signUpUniqueUser();
 
         Long adId = createAd(token, adPayload("Vintage Clock"));
@@ -37,7 +38,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void createAd_withoutToken_isRejected() throws Exception {
+    void createAdWithoutTokenIsRejected() throws Exception {
         mockMvc.perform(post("/api/ads")
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(adPayload("No Auth Ad"))))
@@ -45,7 +46,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void createAd_invalidPayload_returnsValidationError() throws Exception {
+    void createAdInvalidPayloadReturnsValidationError() throws Exception {
         String token = signUpUniqueUser();
         Map<String, Object> bad = adPayload("Bad Ad");
         bad.remove("bidStep");
@@ -60,7 +61,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void getAd_isPubliclyAccessible() throws Exception {
+    void getAdIsPubliclyAccessible() throws Exception {
         String token = signUpUniqueUser();
         Long adId = createAd(token, adPayload("Public Ad"));
 
@@ -70,13 +71,13 @@ class AdIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void getAd_unknownId_returnsNotFound() throws Exception {
+    void getAdUnknownIdReturnsNotFound() throws Exception {
         mockMvc.perform(get("/api/ads/999999"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void myAds_returnsOnlyOwnAds() throws Exception {
+    void myAdsReturnsOnlyOwnAds() throws Exception {
         String tokenA = signUpUniqueUser();
         String tokenB = signUpUniqueUser();
         createAd(tokenA, adPayload("Ad of A"));
@@ -92,7 +93,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void editAd_updatesFields() throws Exception {
+    void editAdUpdatesFields() throws Exception {
         String token = signUpUniqueUser();
         Long adId = createAd(token, adPayload("Original Title"));
 
@@ -113,18 +114,18 @@ class AdIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void editAd_unknownId_returnsBadRequest() throws Exception {
+    void editAdUnknownIdReturnsNotFound() throws Exception {
         String token = signUpUniqueUser();
 
         mockMvc.perform(put("/api/ads/999999")
                         .header("Authorization", bearer(token))
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(adPayload("Ghost Ad"))))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void pagination_filtersByActiveFlag() throws Exception {
+    void paginationFiltersByActiveFlag() throws Exception {
         String token = signUpUniqueUser();
         createAd(token, adPayload("Active One"));
         createAd(token, adPayload("Active Two"));
@@ -142,7 +143,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void pagination_respectsPageSize() throws Exception {
+    void paginationRespectsPageSize() throws Exception {
         String token = signUpUniqueUser();
         for (int i = 1; i <= 3; i++) {
             createAd(token, adPayload("Paged Ad " + i));
@@ -159,7 +160,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     // ---------- Bidding ----------
 
     @Test
-    void bid_happyPath_updatesPriceAndDebitsWallet() throws Exception {
+    void bidHappyPathUpdatesPriceAndDebitsWallet() throws Exception {
         String seller = signUpUniqueUser();
         String bidder = signUpUniqueUser();
         Long adId = createAd(seller, adPayload("Bid Target"));
@@ -190,7 +191,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void bid_withoutAmount_usesCurrentPricePlusBidStep() throws Exception {
+    void bidWithoutAmountUsesCurrentPricePlusBidStep() throws Exception {
         String seller = signUpUniqueUser();
         String bidder = signUpUniqueUser();
         Long adId = createAd(seller, adPayload("Auto Bid Ad"));
@@ -208,7 +209,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void bid_outbid_refundsPreviousBidder() throws Exception {
+    void bidOutbidRefundsPreviousBidder() throws Exception {
         String seller = signUpUniqueUser();
         String firstBidder = signUpUniqueUser();
         String secondBidder = signUpUniqueUser();
@@ -242,7 +243,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void bid_onOwnAd_isRejected() throws Exception {
+    void bidOnOwnAdIsRejected() throws Exception {
         String seller = signUpUniqueUser();
         Long adId = createAd(seller, adPayload("Own Ad"));
         addCredits(seller, new BigDecimal("500"));
@@ -256,7 +257,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void bid_notAboveCurrentPrice_isRejected() throws Exception {
+    void bidNotAboveCurrentPriceIsRejected() throws Exception {
         String seller = signUpUniqueUser();
         String bidder = signUpUniqueUser();
         Long adId = createAd(seller, adPayload("Low Bid Ad"));
@@ -271,7 +272,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void bid_withInsufficientBalance_isRejected() throws Exception {
+    void bidWithInsufficientBalanceIsRejected() throws Exception {
         String seller = signUpUniqueUser();
         String bidder = signUpUniqueUser();
         Long adId = createAd(seller, adPayload("Expensive Ad"));
@@ -286,7 +287,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void bid_withoutToken_isRejected() throws Exception {
+    void bidWithoutTokenIsRejected() throws Exception {
         String seller = signUpUniqueUser();
         Long adId = createAd(seller, adPayload("Protected Bid Ad"));
 
@@ -299,7 +300,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     // ---------- Expiry ----------
 
     @Test
-    void closeExpiredAds_closesOnlyPastEndDateAds() throws Exception {
+    void closeExpiredAdsClosesOnlyPastEndDateAds() throws Exception {
         String token = signUpUniqueUser();
 
         Map<String, Object> expired = adPayload("Expired Ad");
@@ -328,7 +329,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     // ---------- SSE streams ----------
 
     @Test
-    void adBidStream_isPubliclyAccessible() throws Exception {
+    void adBidStreamIsPubliclyAccessible() throws Exception {
         String token = signUpUniqueUser();
         Long adId = createAd(token, adPayload("Streamed Ad"));
 
@@ -337,7 +338,7 @@ class AdIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void globalBidStream_isPubliclyAccessible() throws Exception {
+    void globalBidStreamIsPubliclyAccessible() throws Exception {
         mockMvc.perform(get("/api/ads/stream"))
                 .andExpect(status().isOk());
     }

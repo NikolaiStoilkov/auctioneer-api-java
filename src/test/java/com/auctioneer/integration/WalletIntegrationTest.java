@@ -21,7 +21,7 @@ class WalletIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void newUser_startsWithZeroBalance() throws Exception {
+    void newUserStartsWithZeroBalance() throws Exception {
         String token = signUpUniqueUser();
 
         JsonNode balance = getBalance(token);
@@ -30,7 +30,7 @@ class WalletIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void addCredits_increasesBalanceAndRecordsTransaction() throws Exception {
+    void addCreditsIncreasesBalanceAndRecordsTransaction() throws Exception {
         String token = signUpUniqueUser();
 
         JsonNode result = readJson(mockMvc.perform(post("/api/wallet/add-credits")
@@ -55,7 +55,7 @@ class WalletIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void confirmCredits_alsoAddsCredits() throws Exception {
+    void confirmCreditsAlsoAddsCredits() throws Exception {
         String token = signUpUniqueUser();
 
         mockMvc.perform(post("/api/wallet/confirm-credits")
@@ -68,7 +68,7 @@ class WalletIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void addCredits_belowMinimum_returnsValidationError() throws Exception {
+    void addCreditsBelowMinimumReturnsValidationError() throws Exception {
         String token = signUpUniqueUser();
 
         mockMvc.perform(post("/api/wallet/add-credits")
@@ -81,7 +81,7 @@ class WalletIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void addCredits_missingAmount_returnsValidationError() throws Exception {
+    void addCreditsMissingAmountReturnsValidationError() throws Exception {
         String token = signUpUniqueUser();
 
         mockMvc.perform(post("/api/wallet/add-credits")
@@ -92,7 +92,7 @@ class WalletIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void transactions_arePaged() throws Exception {
+    void transactionsArePaged() throws Exception {
         String token = signUpUniqueUser();
         addCredits(token, new BigDecimal("10"));
         addCredits(token, new BigDecimal("20"));
@@ -120,7 +120,7 @@ class WalletIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void walletEndpoints_withoutToken_areRejected() throws Exception {
+    void walletEndpointsWithoutTokenAreRejected() throws Exception {
         mockMvc.perform(get("/api/wallet/balance"))
                 .andExpect(status().is4xxClientError());
 

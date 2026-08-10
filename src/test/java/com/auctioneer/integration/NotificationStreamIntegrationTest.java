@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class NotificationStreamIntegrationTest extends IntegrationTestBase {
 
     @Test
-    void notificationStream_withValidToken_opensSseConnection() throws Exception {
+    void notificationStreamWithValidTokenOpensSseConnection() throws Exception {
         String token = signUpUniqueUser();
 
         mockMvc.perform(get("/api/users/notifications/stream")
@@ -25,14 +25,14 @@ class NotificationStreamIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void notificationStream_withGarbageToken_fails() throws Exception {
+    void notificationStreamWithGarbageTokenFails() throws Exception {
         mockMvc.perform(get("/api/users/notifications/stream")
                         .param("token", "not-a-jwt"))
                 .andExpect(status().is5xxServerError());
     }
 
     @Test
-    void notificationStream_withExpiredToken_returnsUnauthorized() throws Exception {
+    void notificationStreamWithExpiredTokenReturnsUnauthorized() throws Exception {
         String expiredToken = buildExpiredToken(1L);
 
         mockMvc.perform(get("/api/users/notifications/stream")

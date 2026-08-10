@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AuthenticationIntegrationTest extends IntegrationTestBase {
 
     @Test
-    void signUp_returnsValidJwtAndPersistsUser() throws Exception {
+    void signUpReturnsValidJwtAndPersistsUser() throws Exception {
         String token = signUp("signup1");
 
         assertThat(token).isNotBlank();
@@ -25,7 +25,7 @@ class AuthenticationIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void signUp_storesHashedPasswordNotPlaintext() throws Exception {
+    void signUpStoresHashedPasswordNotPlaintext() throws Exception {
         String token = signUp("signup2");
 
         String hash = userRepository.findById(userIdFromToken(token)).get().getPasswordHash();
@@ -33,7 +33,7 @@ class AuthenticationIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void signUp_duplicateUsername_returnsConflict() throws Exception {
+    void signUpDuplicateUsernameReturnsConflict() throws Exception {
         signUp("dupuser");
 
         Map<String, Object> second = signUpPayload("dupuser");
@@ -47,7 +47,7 @@ class AuthenticationIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void signUp_duplicateEmail_returnsConflict() throws Exception {
+    void signUpDuplicateEmailReturnsConflict() throws Exception {
         signUp("dupemail");
 
         Map<String, Object> second = signUpPayload("otheruser");
@@ -61,7 +61,7 @@ class AuthenticationIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void signUp_invalidPayload_returnsValidationError() throws Exception {
+    void signUpInvalidPayloadReturnsValidationError() throws Exception {
         Map<String, Object> body = signUpPayload("badpayload");
         body.put("password", "123");        // too short
         body.remove("firstName");           // missing
@@ -74,7 +74,7 @@ class AuthenticationIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void signIn_withCorrectCredentials_returnsJwt() throws Exception {
+    void signInWithCorrectCredentialsReturnsJwt() throws Exception {
         signUp("signin1");
 
         String token = mockMvc.perform(post("/api/auth/sign-in")
@@ -88,7 +88,7 @@ class AuthenticationIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void signIn_withWrongPassword_isRejected() throws Exception {
+    void signInWithWrongPasswordIsRejected() throws Exception {
         signUp("signin2");
 
         mockMvc.perform(post("/api/auth/sign-in")
@@ -99,7 +99,7 @@ class AuthenticationIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void signIn_unknownUser_returnsNotFound() throws Exception {
+    void signInUnknownUserReturnsNotFound() throws Exception {
         mockMvc.perform(post("/api/auth/sign-in")
                         .contentType(APPLICATION_JSON)
                         .content("{\"username\": \"ghost\", \"password\": \"password123\"}"))
@@ -108,7 +108,7 @@ class AuthenticationIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void signIn_missingFields_returnsValidationError() throws Exception {
+    void signInMissingFieldsReturnsValidationError() throws Exception {
         mockMvc.perform(post("/api/auth/sign-in")
                         .contentType(APPLICATION_JSON)
                         .content("{}"))
